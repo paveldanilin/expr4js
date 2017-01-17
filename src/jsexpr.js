@@ -1,30 +1,47 @@
 /***********************************************************************************************************************
-* Javascript-Expression parser / performer
+* Javascript-Expression parser
 * Version: 0.1
-*-----------------------------------------------------------------------------------------------------------------------
-* 17.01.2017 - Added build expr tree (ASTNodeExpr) and  executor (JSExpr)
-* 16.01.2017 - Created
 ***********************************************************************************************************************/
 
 (function () {
 
   var jsexpr = (function () {
 
-    var OP_GT = 100;  // >
-    var OP_LT = 101;  // <
-    var OP_GET = 102; // >=
-    var OP_LET = 103; // <=
-    var OP_EQ  = 104; // ==
-    var OP_DOT = 105; // .
-    var OP_WS = 106; // ' '
-    var OP_AND = 107; // and
-    var OP_OR = 108; // or
-    var OP_SUM = 109; // +
-    var OP_DIV = 110; // /
-    var OP_DIF = 111; // -
-    var OP_MUL = 112; // *
-    var OP_OPEN_PHAR = 113; // (
-    var OP_CLOSE_PHAR = 114; // )
+    var TTOKEN = {
+      ERROR:      0,
+      IDENTIFER:  1,
+      CONST:      2,
+      OPERATOR:   3,
+      KEYWORDS:   4
+    };
+
+    var ASTNODE = {
+      EXPR:           0,
+      FUNCTION_CALL:  1,
+      CONST:          2,
+      VARIABLE:       3
+    };
+
+    var OPERATOR = {
+      GT:         100, // >
+      LT:         101, // <
+      GET:        102, // >=
+      LET:        103, // <=
+      EQ:         104, // ==
+      NEQ:        105, // !=
+      DOT:        106, // .
+      WS:         107, // ' '
+      AND:        108, // and
+      OR:         109, // or
+      DIV:        110, // /
+      DIF:        111, // -
+      MUL:        112, // *
+      SUM:        113, // +
+      OPEN_PAR:   114, // (
+      CLOSE_PAR:  115, // )
+      IN:         116, // ? (const) ? (object/const[string])
+      COMMA:      117
+    };
 
     var ERROR = {
       PARSE_STRING     : {
@@ -45,21 +62,25 @@
       }
     };
 
-    var CONST_STRING = 10000;
-    var CONST_NUMBER = 10001;
+    var CONST = {
+      STRING: 10000,
+      NUMBER: 10001
+    };
 
-    var SINGLE_QUOTE = 1;
-    var DOUBLE_QUOTE = 2;
+    var QUOTE = {
+      SINGLE: 1,
+      DOUBLE: 2
+    };
 
     var _keywords = {
     };
-    var _stopchars = ['!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-'];
+    var _stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-'];
     var _precedence = {
       '(': 0,
       ')': 1,
       '||': 2, 'or': 2,
       '&&': 3, 'and': 3,
-      '<': 4, '>': 4, '<=': 4, '>=': 4, '==': 4,
+      '<': 4, '>': 4, '<=': 4, '>=': 4, '==': 4, '!=': 4, '?': 4,
       '+':  5, '-': 5,
       '*':  6, '/': 6
     };
@@ -91,11 +112,36 @@
 
       getPos: function() {
         return this.pos;
+      },
+
+      isError: function() {
+        return this.type === TTOKEN.ERROR;
+      },
+
+      isIdentifer: function() {
+        return this.type === TTOKEN.IDENTIFER;
+      },
+
+      isConst: function() {
+        return this.type === TTOKEN.CONST;
+      },
+
+      isOperator: function() {
+        return this.type === TTOKEN.OPERATOR;
+      },
+
+      isKeyword: function() {
+        return this.type === TTOKEN.KEYWORD;
       }
     };
 
+    /**
+     * @param {[type]} token [description]
+     * @param {[type]} pos   [description]
+     * @param {[type]} err   [description]
+     */
     var TokenError = function(token, pos, err) {
-      Token.call(this, "ERROR", token, pos);
+      Token.call(this, TTOKEN.ERROR, token, pos);
       this.ecode = err.CODE;
       this.edef = err.DEF;
     };
@@ -116,7 +162,7 @@
      * @param {[type]} op  [description]
      */
     var TokenIdentifer = function(token, pos) {
-      Token.call(this, "IDENTIFER", token, pos);
+      Token.call(this, TTOKEN.IDENTIFER, token, pos);
     };
     _extends(TokenIdentifer, Token);
 
@@ -127,7 +173,7 @@
      * @param {[type]} op  [description]
      */
     var TokenOperator = function(token, pos, op) {
-      Token.call(this, "OPERATOR", token, pos);
+      Token.call(this, TTOKEN.OPERATOR, token, pos);
       this.op    = op;
     };
     _extends(TokenOperator, Token);
@@ -147,7 +193,7 @@
      * @param {[type]} op  [description]
      */
     var TokenConst = function(token, pos, dtype) {
-      Token.call(this, "CONST", token, pos);
+      Token.call(this, TTOKEN.CONST, token, pos);
       this.dtype  = dtype;
     };
     _extends(TokenConst, Token);
@@ -163,7 +209,7 @@
      * @param {[type]} op  [description]
      */
     var TokenKeyword = function(token, pos, code) {
-      Token.call(this, "KEYWORD", token, pos);
+      Token.call(this, TTOKEN.KEYWORD, token, pos);
       this.code  = code;
     };
     _extends(TokenKeyword, Token);
@@ -173,21 +219,106 @@
     };
 
     /**
+     * @param {[type]} type [description]
+     */
+    var ASTNode = function(type) {
+      this.type = type;
+    };
+    ASTNode.prototype.getType = function() {
+      return this.type;
+    };
+    ASTNode.prototype.isExpr = function() {
+      return this.type === ASTNODE.EXPR;
+    };
+    ASTNode.prototype.isFunctionCall = function() {
+      return this.type === ASTNODE.FUNCTION_CALL;
+    };
+    ASTNode.prototype.execute = function(scope) {
+      return null;
+    };
+
+    /**
      * @param {[type]} operator      [description]
      * @param {[type]} left_operand  [description]
      * @param {[type]} right_operand [description]
      */
     var ASTNodeExpr = function(operator, left_operand, right_operand) {
+      ASTNode.call(this, ASTNODE.EXPR);
       this.op = operator;
       this.left = left_operand;
       this.right = right_operand;
     };
+    _extends(ASTNodeExpr, ASTNode);
 
     ASTNodeExpr.prototype.toString = function() {
-      return this.op.toString() + '(' + this.left.toString() + ',' + this.right.toString() + ')';
+      return this.op + '(' + this.left.toString() + ',' + this.right.toString() + ')';
     };
 
-    ASTNodeExpr.prototype.getValueByPath = function(path, scope) {
+    ASTNodeExpr.prototype.execute = function(scope) {
+      var vleft   = this.left.execute(scope);
+      var vright  = this.right.execute(scope);
+      switch(this.op) {
+        case OPERATOR.SUM: return vleft + vright;
+        case OPERATOR.DIF: return vleft - vright;
+        case OPERATOR.MUL: return vleft * vright;
+        case OPERATOR.DIV: return vleft / vright;
+        case OPERATOR.GT: return vleft > vright;
+        case OPERATOR.LT: return vleft < vright;
+        case OPERATOR.EQ: return vleft == vright;
+        case OPERATOR.GET: return vleft >= vright;
+        case OPERATOR.LET: return vleft <= vright;
+        case OPERATOR.AND: return vleft && vright;
+        case OPERATOR.OR: return vleft || vright;
+        case OPERATOR.NEQ: return vleft != vright;
+      }
+      return null;
+    };
+
+    /**
+     * @param {[type]} name [description]
+     * @param {[type]} args [description]
+     */
+    var ASTNodeFunc = function(name, args) {
+      ASTNode.call(this, ASTNODE.FUNCTION_CALL);
+      this.name = name;
+      this.args = args;
+    };
+    _extends(ASTNodeFunc, ASTNode);
+
+    ASTNodeFunc.prototype.execute = function(scope) {
+      console.log(this.args)
+      return null;
+    };
+
+    /**
+     * @param {[type]} val  [description]
+     * @param {[type]} type [description]
+     */
+    var ASTNodeConst = function(val, type) {
+      ASTNode.call(this, ASTNODE.CONST);
+      this.val = val;
+      this.type = type;
+    };
+    _extends(ASTNodeConst, ASTNode);
+
+    ASTNodeConst.prototype.getDataType = function() {
+      return this.type;
+    };
+
+    ASTNodeConst.prototype.execute = function(scope) {
+      return this.val;
+    };
+
+    /**
+     * @param {[type]} name [description]
+     */
+    var ASTNodeVariable = function(name) {
+      ASTNode.call(this, ASTNODE.VARIABLE);
+      this.name = name;
+    };
+    _extends(ASTNodeVariable, ASTNode);
+
+    ASTNodeVariable.prototype.getValueByPath = function(path, scope) {
       var chunks = path.split('.');
       var len = chunks.length;
       var v = scope;
@@ -200,45 +331,16 @@
       return v;
     };
 
-    ASTNodeExpr.prototype.getOperandValue = function(operand, scope) {
-      if(operand instanceof ASTNodeExpr) {
-        return operand.execute(scope);
-      }else if(operand instanceof TokenConst) {
-        var v = operand.toString();
-        if(operand.getDataType() == CONST_NUMBER) {
-          v = +v; // To number
-        }
-        return v;
-      }else if(operand instanceof TokenIdentifer) {
-        var identifer = operand.toString();
-        // a.b.c
-        if(identifer.indexOf('.') != -1) {
-          return this.getValueByPath(identifer, scope);
-        }
-        return scope[identifer];
-      }
-      return null;
+    ASTNodeVariable.prototype.getName = function() {
+      return this.name;
     };
 
-    ASTNodeExpr.prototype.execute = function(scope) {
-      var vleft = this.getOperandValue(this.left, scope);
-      var vright = this.getOperandValue(this.right, scope);
-      switch(this.op.getOperator()) {
-        case OP_SUM: return vleft + vright;
-        case OP_DIF: return vleft - vright;
-        case OP_MUL: return vleft * vright;
-        case OP_DIV: return vleft / vright;
-        case OP_GT: return vleft > vright;
-        case OP_LT: return vleft < vright;
-        case OP_EQ: return vleft == vright;
-        case OP_GET: return vleft >= vright;
-        case OP_LET: return vleft <= vright;
-        case OP_AND: return vleft && vright;
-        case OP_OR: return vleft || vright;
+    ASTNodeVariable.prototype.execute = function(scope) {
+      if(this.name.indexOf('.') != -1) {
+        return this.getValueByPath(this.name, scope);
       }
-      return null;
+      return scope[this.name];
     };
-
 
     /**
      * @param {[type]} ast_node_root [description]
@@ -265,9 +367,9 @@
 
       var _copyToken = function(token) {
         switch(token.getType()) {
-          case 'IDENTIFER': return new TokenIdentifer(token.toString(), token.getPos());
-          case 'OPERATOR': return new TokenOperator(token.toString(), token.getPos(), token.getOperator());
-          case 'CONST': return new TokenOperator(token.toString(), token.getPos(), token.getDataType());
+          case TTOKEN.IDENTIFER: return new TokenIdentifer(token.toString(), token.getPos());
+          case TTOKEN.OPERATOR: return new TokenOperator(token.toString(), token.getPos(), token.getOperator());
+          case TTOKEN.CONST: return new TokenOperator(token.toString(), token.getPos(), token.getDataType());
         }
         return null;
       };
@@ -282,7 +384,7 @@
         var complete = false;
 
         for(j; j < input.buf_len; j++) {
-          if( (begin_quote === DOUBLE_QUOTE && input.buf[j] === '"') || (begin_quote === SINGLE_QUOTE && input.buf[j] === '\'')) {
+          if( (begin_quote === QUOTE.DOUBLE && input.buf[j] === '"') || (begin_quote === QUOTE.SINGLE && input.buf[j] === '\'')) {
             complete = true;
             break;
           }
@@ -309,60 +411,73 @@
         var op_code = null;
 
         switch(token) {
+          case ",":
+            op_code = OPERATOR.COMMA;
+            break;
+          case '?':
+            op_code = OPERATOR.IN;
+            break;
+          case '!':
+            if(_nextChar(input) === '=') {
+              input.pos++;
+              token += '=';
+              op_code = OPERATOR.NEQ;
+            }
+            break;
           case '(':
-            op_code = OP_OPEN_PHAR;
+            op_code = OPERATOR.OPEN_PAR;
             break;
           case ')':
-            op_code = OP_CLOSE_PHAR;
+            op_code = OPERATOR.CLOSE_PAR;
             break;
           case '+':
-            op_code = OP_SUM;
+            op_code = OPERATOR.SUM;
             break;
           case '-':
-            op_code = OP_DIF;
+            op_code = OPERATOR.DIF;
             break;
           case '*':
-            op_code = OP_MUL;
+            op_code = OPERATOR.MUL;
             break;
           case '/':
-            op_code = OP_DIV;
+            op_code = OPERATOR.DIV;
             break;
           case "and":
-              op_code = OP_AND;
+            op_code = OPERATOR.AND;
             break;
           case "or":
-              op_code = OP_OR;
+            op_code = OPERATOR.OR;
             break;
           case ">":
             if(_nextChar(input) === '=') {
               input.pos++;
               token += '=';
-              op_code = OP_GET;
+              op_code = OPERATOR.GET;
             }else {
-              op_code = OP_GT;
+              op_code = OPERATOR.GT;
             }
             break;
           case "<":
             if(_nextChar(input) === '=') {
               input.pos++;
               token += '=';
-              op_code = OP_LET;
+              op_code = OPERATOR.LET;
             }else {
-              op_code = OP_LT;
+              op_code = OPERATOR.LT;
             }
             break;
           case "=":
             if(_nextChar(input) === '=') {
               input.pos++;
               token += '=';
-              op_code = OP_EQ;
+              op_code = OPERATOR.EQ;
             }
             break;
           case ".":
-            op_code = OP_DOT;
+            op_code = OPERATOR.DOT;
             break;
           case " ":
-            op_code = OP_WS;
+            op_code = OPERATOR.WS;
             break;
         }
 
@@ -394,12 +509,7 @@
               );
       };
 
-      var _getToken = function(input) {
-        if(_back_token !== null) {
-          var t = _copyToken(_back_token);
-          _back_token = null;
-          return t;
-        }
+      var _readNextToken = function(input) {
         var token = '';
         for(var i = input.pos; i < input.buf_len; i++) {
           var ch = input.buf[i];
@@ -417,7 +527,7 @@
               }
             /*  if( _prev_token !== null &&
                   _prev_token.getType() === 'OPERATOR' &&
-                  (_prev_token.getOperator() === OP_CLOSE_PHAR || _prev_token.getOperator() === OP_CLOSE_PHAR) &&
+                  (_prev_token.getOperator() === OPERATOR.CLOSE_PAR || _prev_token.getOperator() === OPERATOR.CLOSE_PAR) &&
                   (ch === '-' || ch === '+') &&
                   _isDigit(_nextChar(input))) {
                 token += ch;
@@ -426,18 +536,18 @@
 
               if(ch === '"') {
                 var begin_pos = input.pos;
-                var str = _getString(DOUBLE_QUOTE, begin_pos, input);
+                var str = _getString(QUOTE.DOUBLE, begin_pos, input);
                 if(str === null) {
                   return new TokenError('', begin_pos, ERROR.PARSE_STRING);
                 }
-                return new TokenConst(str, begin_pos, CONST_STRING);
+                return new TokenConst(str, begin_pos, CONST.STRING);
               }else if(ch === '\'') {
                 var begin_pos = input.pos;
-                var str = _getString(SINGLE_QUOTE, begin_pos, input);
+                var str = _getString(QUOTE.SINGLE, begin_pos, input);
                 if(str === null) {
                   return new TokenError('', begin_pos, ERROR.PARSE_STRING);
                 }
-                return new TokenConst(str, begin_pos, CONST_STRING);
+                return new TokenConst(str, begin_pos, CONST.STRING);
               }
 
               var op = _getOp(ch, input);
@@ -477,7 +587,7 @@
           if(isNaN(+token)) {
             return new TokenError(token, input.pos - token.length, ERROR.BAD_NUMBER);
           }
-          return new TokenConst(token, input.pos - token.length, CONST_NUMBER);
+          return new TokenConst(token, input.pos - token.length, CONST.NUMBER);
         }
 
         if(!token.match(/^_?([a-zA-Z])+$/)) {
@@ -487,21 +597,54 @@
         return new TokenIdentifer(token, input.pos - token.length);
       };
 
+      var _getToken = function(input) {
+        if(_back_token !== null) {
+          var t = _copyToken(_back_token);
+          _back_token = null;
+          return t;
+        }
+        _prev_token = _readNextToken(input);
+        return _prev_token;
+      };
+
       var _putbackToken = function(token) {
         _back_token = token;
       }
 
+      var _token2astnode = function(token) {
+        switch(token.getType()) {
+          case TTOKEN.IDENTIFER: return new ASTNodeVariable(token.toString());
+          case TTOKEN.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
+        }
+        return null;
+      };
+
       var _createExprNode = function(operators, operands) {
         var operator = operators.pop();
         var right_operand = operands.pop();
+        if(right_operand instanceof Token) {
+          right_operand = _token2astnode(right_operand);
+        }
         var left_operand = operands.pop();
+        if(left_operand instanceof Token) {
+          left_operand = _token2astnode(left_operand);
+        }
         //console.log(operator.toString() + ' NODE(' + left_operand.toString() + ',' + right_operand.toString() + ')');
-        return new ASTNodeExpr(operator, left_operand, right_operand);
+        return new ASTNodeExpr(operator.getOperator(), left_operand, right_operand);
       };
 
-      var _getIdentifer = function(token, input) {
-        var ident = token.toString();
+      var _buildAST = function(chain) {
+
+      };
+
+      function _processFunction(token, input) {
+        var fname = token.toString();
         var pos = token.getPos();
+        var args = [];
+        var buf = [];
+        var par_cnt = 0;
+        _getToken(input); // Skip '('
+
         for(;;) {
           var token = _getToken(input);
 
@@ -509,7 +652,66 @@
             break;
           }
 
-          if( (token.getType() === 'OPERATOR' && token.getOperator() === OP_DOT)  || token.getType() === 'IDENTIFER') {
+          if(token.isOperator()) {
+            if(token.getOperator() === OPERATOR.COMMA) {
+              if(buf.length === 0) {
+                // Error
+              }
+              args.push(buf.slice());
+              buf = [];
+              continue;
+            }else if(token.getOperator() === OPERATOR.CLOSE_PAR) {
+              if(par_cnt === 0) {
+                if(buf.length === 0) {
+                  // Error
+                }
+                args.push(buf.slice());
+                buf = [];
+                break; // End of function call
+              }else {
+                buf.push(token);
+                par_cnt--;
+              }
+            }else if(token.getOperator() === OPERATOR.OPEN_PAR) {
+              buf.push(token);
+              par_cnt++;
+            }else if(token.getOperator() === OPERATOR.WS) {
+              continue;
+            }
+          }
+
+          if(token.isIdentifer()) {
+            token = _processIdentifer(token, input);
+          }else if(token.isConst()) {
+            token = _token2astnode(token);
+          }
+
+          buf.push(token);
+        }
+
+        var alen = args.length;
+        for(var i = 0 ; i < alen; i++) {
+          var chain_len = args[i].length;
+          if(chain_len === 1) {
+            args[i] = args[i][0];
+          }else if(chain_len > 0) {
+            args[i] = _buildAST(args[i]);
+          }
+        }
+
+        return new ASTNodeFunc(fname, args);
+      };
+
+      function _processStruct(token, input) {
+        var ident = token.toString();
+        var pos = token.getPos();
+        for(;;) {
+          var token = _getToken(input);
+          if(token === null) {
+            break;
+          }
+
+          if( (token.isOperator() && token.getOperator() === OPERATOR.DOT) || token.isIdentifer()) {
             ident += token.toString();
             continue;
           }
@@ -517,9 +719,94 @@
           _putbackToken(token);
           break;
         }
-        return new TokenIdentifer(ident, pos);
+        return new ASTNodeVariable(ident);
       };
 
+      function _processIdentifer(token, input) {
+        var ident = token.toString();
+        var pos = token.getPos();
+        var nexttok = _getToken(input);
+        _putbackToken(nexttok);
+
+        if(nexttok.isOperator() && nexttok.getOperator() === OPERATOR.OPEN_PAR) {
+          return _processFunction(token, input);
+        }
+
+        if(nexttok.isOperator() && nexttok.getOperator() === OPERATOR.DOT) {
+          return _processStruct(token, input);
+        }
+        return new ASTNodeVariable(ident);
+      };
+
+
+      var _parse = function(input) {
+        var operands = [];
+        var operators = [];
+
+        for(;;) {
+          var token = _getToken(input);
+
+          if(token === null) {
+            while(operators.length != 0) {
+              operands.push(_createExprNode(operators, operands));
+             }
+            break;
+          }
+
+          if(token.isError()) {
+            console.log('Lex-Error<' + token.getErrorCode() + '>: ' + token.getErrorDef() + ' in token<' + token.toString() + '>' + ' at ' + (token.getPos() + 1) + ' pos');
+            break;
+          }
+
+          if(token.isOperator() && token.getOperator() === OPERATOR.WS) {
+            // Skip white space
+            continue;
+          }
+
+          if(token.isIdentifer()) {
+            token = _processIdentifer(token, input);
+          }else if(token.isConst()) {
+            token = new ASTNodeConst(token.toString(), token.getDataType());
+          }
+          //console.log(token);
+
+          if(token instanceof ASTNode /*|| token.isIdentifer() || token.isConst()*/) {
+            operands.push(token);
+            continue;
+          }
+
+          if(token.isOperator()) {
+            if(operators.length === 0) {
+              operators.push(token);
+            }else {
+              var operator = operators[operators.length - 1];
+              if(token.getOperator() === OPERATOR.OPEN_PAR || token.getPrecedence() > operator.getPrecedence()) {
+                operators.push(token);
+              }else if(token.getOperator() === OPERATOR.CLOSE_PAR) {
+                for(;;) {
+                   var operator = operators.pop();
+                   if(operator.getOperator() === OPERATOR.OPEN_PAR) {
+                     break;
+                   }
+                   var right_operand = operands.pop();
+                   var left_operand = operands.pop();
+                   operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
+                }
+              }else {
+                operands.push(_createExprNode(operators, operands));
+                operators.push(token);
+              }
+            }
+          }
+
+        }
+
+        if(operands.length === 1 && operands[0] instanceof ASTNode) {
+          return new JSExpr(operands[0]);
+        }
+
+        return null;
+      };
     /**
      * -----------------------------------------------------------------------------------------------------------------
      * Module public methods
@@ -527,77 +814,12 @@
      */
 
      var parse = function(expr) {
-
        var input = {
-         buf: expr,
+         buf:     expr,
          buf_len: expr.length,
-         pos: 0
+         pos:     0
        };
-
-       var operands = [];
-       var operators = [];
-
-       for(;;) {
-         var token = _getToken(input);
-         _prev_token = token;
-
-         if(token === null) {
-           while(operators.length != 0) {
-             operands.push(_createExprNode(operators, operands));
-            }
-           break;
-         }
-
-         if(token instanceof TokenError) {
-           console.log('Lex-Error<' + token.getErrorCode() + '>: ' + token.getErrorDef() + ' in token<' + token.toString() + '>' + ' at ' + (token.getPos() + 1) + ' pos');
-           break;
-         }
-
-         if(token.getType() === 'OPERATOR' && token.getOperator() === OP_WS) {
-           // Skip white space
-           continue;
-         }
-
-         if(token.getType() === 'IDENTIFER') {
-           token = _getIdentifer(token, input);
-         }
-
-         if(token.getType() === 'IDENTIFER' || token.getType() === 'CONST') {
-           operands.push(token);
-           continue;
-         }
-
-         if(token.getType() === 'OPERATOR') {
-           if(operators.length === 0) {
-             operators.push(token);
-           }else {
-             var top_op = operators[operators.length - 1];
-             if(token.getOperator() === OP_OPEN_PHAR || token.getPrecedence() > top_op.getPrecedence()) {
-               operators.push(token);
-             }else if(token.getOperator() === OP_CLOSE_PHAR) {
-               for(;;) {
-                  var operator = operators.pop();
-                  if(operator.getOperator() === OP_OPEN_PHAR) {
-                    break;
-                  }
-                  var right_operand = operands.pop();
-                  var left_operand = operands.pop();
-                  operands.push(new ASTNodeExpr(operator, left_operand, right_operand));
-               }
-             }else {
-               operands.push(_createExprNode(operators, operands));
-               operators.push(token);
-             }
-           }
-         }
-
-       }
-
-       if(operands.length === 1 && operands[0] instanceof ASTNodeExpr) {
-         return new JSExpr(operands[0]);
-       }
-
-       return null;
+       return _parse(input);
      };
 
     /*******************************************************************************************************************
