@@ -75,13 +75,14 @@
     var _keywords = {};
     var _stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-'];
     var _precedence = {
-      '(': 0,
-      ')': 1,
-      '||': 2, 'or': 2,
-      '&&': 3, 'and': 3,
-      '<': 4, '>': 4, '<=': 4, '>=': 4, '==': 4, '!=': 4, '?': 4,
-      '+':  5, '-': 5,
-      '*':  6, '/': 6
+      '(': 1,
+      ')': 2,
+      '||': 3, 'or': 3,
+      '&&': 4, 'and': 4,
+      '<': 5, '>': 5, '<=': 5, '>=': 5, '==': 5, '!=': 5, '?': 5,
+      '+':  6, '-': 6,
+      '*':  7, '/': 7,
+      '.': 8
     };
     
     /*=require ../common.js*/
@@ -230,6 +231,10 @@
     
     TokenOperator.prototype.getPrecedence = function() {
       return _precedence[this.token] !== undefined ? _precedence[this.token] : null;
+    };
+    
+    TokenOperator.prototype.is = function(op_code) {
+      return this.op === op_code;
     };
     
     TokenOperator.prototype.clone = function() {
@@ -492,12 +497,36 @@
     
     };
     
+    var TokensChain = function(input) {
+      var _input = input;
+      var _back_token = null;
+      var _last_error = null;
+    
+      this.getToken = function() {
+        if(_input.pos >= _input.buf_len) {
+          return null;
+        }
+        var token = _input.buf[_input.pos];
+        _input.pos++;
+        return token;
+      };
+    
+      this.putback = function(token) {
+        _input.pos--;
+      };
+    
+      this.getLastError = function() {
+        return _last_error;
+      };
+    };
+    
     /*=require ../common.js*/
     var ASTNODE = {
       EXPR:           0,
       FUNCTION_CALL:  1,
       CONST:          2,
-      VARIABLE:       3
+      VARIABLE:       3,
+      MEMBER_OF_OBJ:  4
     };
     
     /**
@@ -521,6 +550,9 @@
     ASTNode.prototype.isVariable = function() {
       return this.type === ASTNODE.VARIABLE;
     };
+    ASTNode.prototype.isMemberOfObj = function() {
+      return this.type === ASTNODE.MEMBER_OF_OBJ;
+    };
     ASTNode.prototype.execute = function(scope) {
       return null;
     };
@@ -541,6 +573,9 @@
     };
     
     ASTNodeConst.prototype.execute = function(scope) {
+      if(this.type === CONST.NUMBER) {
+        return +this.val;
+      }
       return this.val;
     };
     
@@ -556,8 +591,17 @@
     _extends(ASTNodeFunc, ASTNode);
     
     ASTNodeFunc.prototype.execute = function(scope) {
-      console.log(this.args)
-      return null;
+      //console.log('Execute function <' + this.name + '>' + JSON.stringify(this.args));
+      if(scope[this.name] === undefined || typeof scope[this.name] !== 'function') {
+        //console.log('Unknown function <' + this.name + '>');
+        return null;
+      }
+      var vargs = [];
+      var len = this.args.length;
+      for(var i = 0 ; i < len; i++) {
+        vargs[i] = this.args[i].execute(scope);
+      }
+      return scope[this.name].apply(scope, vargs);
     };
     
     /**
@@ -569,28 +613,12 @@
     };
     _extends(ASTNodeVariable, ASTNode);
     
-    ASTNodeVariable.prototype.getValueByPath = function(path, scope) {
-      var chunks = path.split('.');
-      var len = chunks.length;
-      var v = scope;
-      for(var i = 0 ; i < len; i++) {
-        v = v[chunks[i]];
-        if(v === undefined) {
-          break;
-        }
-      }
-      return v;
-    };
-    
     ASTNodeVariable.prototype.getName = function() {
       return this.name;
     };
     
     ASTNodeVariable.prototype.execute = function(scope) {
-      if(this.name.indexOf('.') != -1) {
-        return this.getValueByPath(this.name, scope);
-      }
-      return scope[this.name];
+      return scope[this.name] || null;
     };
     
     /**
@@ -611,32 +639,62 @@
     };
     
     ASTNodeExpr.prototype.execute = function(scope) {
-      var vleft   = this.left.execute(scope);
-      var vright  = this.right.execute(scope);
       switch(this.op) {
-        case OPERATOR.SUM: return vleft + vright;
-        case OPERATOR.DIF: return vleft - vright;
-        case OPERATOR.MUL: return vleft * vright;
-        case OPERATOR.DIV: return vleft / vright;
-        case OPERATOR.GT: return vleft > vright;
-        case OPERATOR.LT: return vleft < vright;
-        case OPERATOR.EQ: return vleft == vright;
-        case OPERATOR.GET: return vleft >= vright;
-        case OPERATOR.LET: return vleft <= vright;
-        case OPERATOR.AND: return vleft && vright;
-        case OPERATOR.OR: return vleft || vright;
-        case OPERATOR.NEQ: return vleft != vright;
+        case OPERATOR.SUM: return this.left.execute(scope) + this.right.execute(scope);
+        case OPERATOR.DIF: return this.left.execute(scope) - this.right.execute(scope);
+        case OPERATOR.MUL: return this.left.execute(scope) * this.right.execute(scope);
+        case OPERATOR.DIV: return this.left.execute(scope) / this.right.execute(scope);
+        case OPERATOR.GT: return this.left.execute(scope) > this.right.execute(scope);
+        case OPERATOR.LT: return this.left.execute(scope) < this.right.execute(scope);
+        case OPERATOR.EQ: return this.left.execute(scope) == this.right.execute(scope);
+        case OPERATOR.GET: return this.left.execute(scope) >= this.right.execute(scope);
+        case OPERATOR.LET: return this.left.execute(scope) <= this.right.execute(scope);
+        case OPERATOR.AND: return this.left.execute(scope) && this.right.execute(scope);
+        case OPERATOR.OR: return this.left.execute(scope) || this.right.execute(scope);
+        case OPERATOR.NEQ: return this.left.execute(scope) != this.right.execute(scope);
+        case OPERATOR.DOT: return this.right.execute(this.left.execute(scope));
       }
       return null;
     };
     
+    /**
+     * @param {[type]} name [description]
+     */
+    var ASTNodeMemberOfObj = function(obj_name, next) {
+      ASTNode.call(this, ASTNODE.MEMBER_OF_OBJ);
+      this.obj_name = obj_name;
+      this.next = next || null;
+    };
+    _extends(ASTNodeMemberOfObj, ASTNode);
     
-    var Parser = function(lex) {
-      var _lex        = lex;
-      var _operands   = [];
-      var _operators  = [];
+    ASTNodeMemberOfObj.prototype.getNextValue = function(next, scope) {
+      if(next.isMemberOfObj() || next.isVariable() || next.isFunctionCall()) {
+        return next.execute(scope);
+      }
+      // Error
+      return null;
+    };
     
-      var _token2astnode = function(token) {
+    ASTNodeMemberOfObj.prototype.getObjName = function() {
+      return this.obj_name;
+    };
+    
+    ASTNodeMemberOfObj.prototype.execute = function(scope) {
+      if(scope[this.obj_name] === undefined) {
+        return undefined;
+      }
+      if(this.next !== null) {
+        return this.getNextValue(this.next, scope[this.obj_name]);
+      }
+      return scope[this.obj_name];
+    };
+    
+    
+    var Parser = function() {
+    
+      var _ast = null;
+    
+      function _token2astnode(token) {
         switch(token.getType()) {
           case TTOKEN.IDENTIFER: return new ASTNodeVariable(token.toString());
           case TTOKEN.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
@@ -644,7 +702,7 @@
         return null;
       };
     
-      var _createExprNode = function(operators, operands) {
+      function _createBinExprNode(operators, operands) {
         var operator = operators.pop();
         var right_operand = operands.pop();
         if(right_operand instanceof Token) {
@@ -658,7 +716,50 @@
         return new ASTNodeExpr(operator.getOperator(), left_operand, right_operand);
       };
     
-      var _buildAST = function(chain) {
+    
+      function _buildAST(chain) {
+        var operands   = [];
+        var operators  = [];
+        var len = chain.length;
+    
+        for(var i = 0 ; i < len ; i++) {
+          var n = chain[i];
+          if(n instanceof ASTNode) {
+            operands.push(n);
+          }else {
+            if(operators.length === 0) {
+              operators.push(n);
+            }else {
+              var operator = operators[operators.length - 1];
+              if(n.is(OPERATOR.OPEN_PAR) || n.getPrecedence() > operator.getPrecedence()) {
+                operators.push(n);
+              }else if(n.is(OPERATOR.CLOSE_PAR)) {
+                for(;;) {
+                  var operator = operators.pop();
+                  if(operator.is(OPERATOR.OPEN_PAR)) {
+                    break;
+                  }
+                  var right_operand = operands.pop();
+                  var left_operand = operands.pop();
+                  operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
+                }
+             }else {
+               operands.push(_createBinExprNode(operators, operands));
+               operators.push(n);
+             }
+            }
+          }
+        }
+    
+        while(operators.length != 0) {
+          operands.push(_createBinExprNode(operators, operands));
+        }
+    
+        if(operands.length === 1) {
+          return operands[0];
+        }
+    
+        return null;
       };
     
       function _processFunction(token, lex) {
@@ -669,81 +770,75 @@
         var par_cnt = 0;
         lex.getToken(); // Skip '('
     
-        for(;;) {
-          var token = lex.getToken();
+        //console.log('BEGIN function <' + fname + '> pos:' + pos);
     
-          if(token === null) {
+        for(;;) {
+          var t = lex.getToken();
+    
+          if(t === null) {
             break;
           }
     
-          if(token.isOperator()) {
-            if(token.getOperator() === OPERATOR.COMMA) {
+          if(t.isOperator()) {
+            if(t.is(OPERATOR.COMMA)) {
               if(buf.length === 0) {
                 // Error
+                return null;
               }
-              args.push(buf.slice());
+              args.push(_buildAST(buf.slice()));
               buf = [];
               continue;
-            }else if(token.getOperator() === OPERATOR.CLOSE_PAR) {
+            }else if(t.is(OPERATOR.CLOSE_PAR)) {
               if(par_cnt === 0) {
-                if(buf.length === 0) {
+                if(args.length > 0 && buf.length === 0) {
                   // Error
+                  return null;
                 }
-                args.push(buf.slice());
+                if(buf.length > 0) {
+                  args.push(_buildAST(buf.slice()));
+                }
                 buf = [];
                 break; // End of function call
               }else {
                 buf.push(token);
                 par_cnt--;
               }
-            }else if(token.getOperator() === OPERATOR.OPEN_PAR) {
+            }else if(t.is(OPERATOR.OPEN_PAR)) {
               buf.push(token);
               par_cnt++;
-            }else if(token.getOperator() === OPERATOR.WS) {
+            }else if(t.is(OPERATOR.WS)) {
               continue;
             }
+            buf.push(t);
+            continue;
           }
     
-          if(token.isIdentifer()) {
-            token = _processIdentifer(token, lex);
-          }else if(token.isConst()) {
-            token = _token2astnode(token);
-          }
-    
-          buf.push(token);
+          buf.push(_processToken(t, lex));
         }
     
-        var alen = args.length;
-        for(var i = 0 ; i < alen; i++) {
-          var chain_len = args[i].length;
-          if(chain_len === 1) {
-            args[i] = args[i][0];
-          }else if(chain_len > 0) {
-            args[i] = _buildAST(args[i]);
-          }
+        if(args.length > 0) {
+          //console.log('<' + fname + '> args: ' + JSON.stringify(args));
+        }else {
+          //console.log('<' + fname + '> no args');
         }
+        //console.log('END function <' + fname + '> pos:' + pos);
     
         return new ASTNodeFunc(fname, args);
       };
     
-      function _processStruct(token, lex) {
+      function _processMemberOf(token, lex) {
         var ident = token.toString();
         var pos = token.getPos();
-        for(;;) {
-          var token = lex.getToken();
-          if(token === null) {
-            break;
-          }
+        lex.getToken(); // Skip '.'
     
-          if( (token.isOperator() && token.getOperator() === OPERATOR.DOT) || token.isIdentifer()) {
-            ident += token.toString();
-            continue;
-          }
-    
-          lex.putback(token);
-          break;
+        var nt = lex.getToken();
+        if(nt === null || !nt.isIdentifer()) {
+          return null;
         }
-        return new ASTNodeVariable(ident);
+    
+        var next = _processIdentifer(nt, lex);
+    
+        return new ASTNodeMemberOfObj(ident, next);
       };
     
       function _processIdentifer(token, lex) {
@@ -751,11 +846,11 @@
         var pos     = token.getPos();
         var nexttok = lex.getToken();
         lex.putback(nexttok);
-        if(nexttok.isOperator() && nexttok.getOperator() === OPERATOR.OPEN_PAR) {
+        if(nexttok.isOperator() && nexttok.is(OPERATOR.OPEN_PAR)) {
           return _processFunction(token, lex);
         }
-        if(nexttok.isOperator() && nexttok.getOperator() === OPERATOR.DOT) {
-          return _processStruct(token, lex);
+        if(nexttok.isOperator() && nexttok.is(OPERATOR.DOT)) {
+          return _processMemberOf(token, lex);
         }
         return new ASTNodeVariable(ident);
       };
@@ -764,44 +859,87 @@
         return _token2astnode(token);
       };
     
-      function _processOperator(token) {
-        if(_operators.length === 0) {
-          _operators.push(token);
+      function _processOperator(token, operators, operands) {
+        if(operators.length === 0) {
+          operators.push(token);
         }else {
-          var operator = _operators[_operators.length - 1];
-          if(token.getOperator() === OPERATOR.OPEN_PAR || token.getPrecedence() > operator.getPrecedence()) {
-            _operators.push(token);
-          }else if(token.getOperator() === OPERATOR.CLOSE_PAR) {
+          var operator = operators[operators.length - 1];
+          if(token.is(OPERATOR.OPEN_PAR) || token.getPrecedence() > operator.getPrecedence()) {
+            operators.push(token);
+          }else if(token.is(OPERATOR.CLOSE_PAR)) {
             for(;;) {
-              var operator = _operators.pop();
-              if(operator.getOperator() === OPERATOR.OPEN_PAR) {
+              var operator = operators.pop();
+              if(operator.is(OPERATOR.OPEN_PAR)) {
                 break;
               }
-              var right_operand = _operands.pop();
-              var left_operand = _operands.pop();
-              _operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
+              var right_operand = operands.pop();
+              var left_operand = operands.pop();
+              operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
             }
          }else {
-           _operands.push(_createExprNode(_operators, _operands));
-           _operators.push(token);
+           operands.push(_createBinExprNode(operators, operands));
+           operators.push(token);
          }
         }
       };
     
-      this.lookup = function(token) {
+      function _processToken(token, lex) {
         switch(token.getType()) {
           case TTOKEN.IDENTIFER:
-               var node = _processIdentifer(token, _lex);
-               _operands.push(node);
+            return _processIdentifer(token, lex);
+          case TTOKEN.CONST:
+            return _processConst(token);
+        }
+        return null;
+      };
+    
+      function _process(token, lex, operators, operands) {
+        switch(token.getType()) {
+          case TTOKEN.IDENTIFER:
+               operands.push(_processToken(token, lex));
             break;
           case TTOKEN.CONST:
-              var node = _processConst(token);
-              _operands.push(node);
+              operands.push(_processToken(token, lex));
             break;
           case TTOKEN.OPERATOR:
-              _processOperator(token);
+              _processOperator(token, operators, operands);
             break;
         }
+      };
+    
+      function _parseExpr(lex) {
+        var operands   = [];
+        var operators  = [];
+    
+        for(;;) {
+          var token = lex.getToken();
+          if(token === null) {
+            break;
+          }
+          if(token.isOperator() && token.is(OPERATOR.WS)) {
+            continue;
+          }
+          _process(token, lex, operators, operands);
+        }
+    
+        if(lex.getLastError() !== null) {
+          return null;
+        }
+    
+        while(operators.length != 0) {
+          operands.push(_createBinExprNode(operators, operands));
+        }
+    
+        if(operands.length === 1) {
+          return operands[0];
+        }
+    
+        return null;
+      };
+    
+      this.parse = function(lex) {
+        _ast = _parseExpr(lex);
+        return _ast !== null;
       };
     
       this.getLastError = function() {
@@ -809,26 +947,10 @@
       };
     
       this.getAST = function() {
-        while(_operators.length != 0) {
-          _operands.push(_createExprNode(_operators, _operands));
-        }
+        return _ast;
       };
     };
     
-
-    /**
-     * @param {[type]} ast_node_root [description]
-     */
-    var JSExpr = function(ast_node_root) {
-      this.ast_root = ast_node_root;
-    };
-
-    JSExpr.prototype.execute = function(scope) {
-      if(this.ast_root !== undefined && this.ast_root !== null) {
-        return this.ast_root.execute(scope);
-      }
-      return null;
-    };
 
     /**
       * ----------------------------------------------------------------------------------------------------------------
@@ -837,33 +959,25 @@
       */
       var _parse = function(input) {
         var lex    = new Lex(input);
-        var parser = new Parser(lex);
+        var parser = new Parser();
 
-        for(;;) {
-          var token = lex.getToken();
-          if(token === null) {
-            break;
+        if(!parser.parse(lex)) {
+          var lerr = lex.getLastError();
+          if(lerr !== null) {
+            console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() + ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');
+            return null;
           }
-          if(token.isOperator() && token.getOperator() === OPERATOR.WS) {
-            continue;
+
+          var perr = parser.getLastError();
+          if(perr !== null) {
+            // console.log
+            return null;
           }
-          parser.lookup(token);
         }
 
-        var lerr = lex.getLastError();
-        if(lerr !== null) {
-          console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() + ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');
-          return null;
-        }
-
-        var perr = parser.getLastError();
-        if(perr !== null) {
-          // console.log
-          return null;
-        }
-
-        return new JSExpr(parser.getAST());
+        return parser.getAST();
       };
+
     /**
      * -----------------------------------------------------------------------------------------------------------------
      * Module public methods

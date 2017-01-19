@@ -14,5 +14,8 @@ ASTNodeConst.prototype.getDataType = function() {
 };
 
 ASTNodeConst.prototype.execute = function(scope) {
+  if(this.type === CONST.NUMBER) {
+    return +this.val;
+  }
   return this.val;
 };

@@ -18,6 +18,10 @@ TokenOperator.prototype.getPrecedence = function() {
   return _precedence[this.token] !== undefined ? _precedence[this.token] : null;
 };
 
+TokenOperator.prototype.is = function(op_code) {
+  return this.op === op_code;
+};
+
 TokenOperator.prototype.clone = function() {
   return new TokenOperator(this.toString(), this.getPos(), this.getOperator());
 };

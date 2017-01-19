@@ -16,21 +16,20 @@ ASTNodeExpr.prototype.toString = function() {
 };
 
 ASTNodeExpr.prototype.execute = function(scope) {
-  var vleft   = this.left.execute(scope);
-  var vright  = this.right.execute(scope);
   switch(this.op) {
-    case OPERATOR.SUM: return vleft + vright;
-    case OPERATOR.DIF: return vleft - vright;
-    case OPERATOR.MUL: return vleft * vright;
-    case OPERATOR.DIV: return vleft / vright;
-    case OPERATOR.GT: return vleft > vright;
-    case OPERATOR.LT: return vleft < vright;
-    case OPERATOR.EQ: return vleft == vright;
-    case OPERATOR.GET: return vleft >= vright;
-    case OPERATOR.LET: return vleft <= vright;
-    case OPERATOR.AND: return vleft && vright;
-    case OPERATOR.OR: return vleft || vright;
-    case OPERATOR.NEQ: return vleft != vright;
+    case OPERATOR.SUM: return this.left.execute(scope) + this.right.execute(scope);
+    case OPERATOR.DIF: return this.left.execute(scope) - this.right.execute(scope);
+    case OPERATOR.MUL: return this.left.execute(scope) * this.right.execute(scope);
+    case OPERATOR.DIV: return this.left.execute(scope) / this.right.execute(scope);
+    case OPERATOR.GT: return this.left.execute(scope) > this.right.execute(scope);
+    case OPERATOR.LT: return this.left.execute(scope) < this.right.execute(scope);
+    case OPERATOR.EQ: return this.left.execute(scope) == this.right.execute(scope);
+    case OPERATOR.GET: return this.left.execute(scope) >= this.right.execute(scope);
+    case OPERATOR.LET: return this.left.execute(scope) <= this.right.execute(scope);
+    case OPERATOR.AND: return this.left.execute(scope) && this.right.execute(scope);
+    case OPERATOR.OR: return this.left.execute(scope) || this.right.execute(scope);
+    case OPERATOR.NEQ: return this.left.execute(scope) != this.right.execute(scope);
+    case OPERATOR.DOT: return this.right.execute(this.left.execute(scope));
   }
   return null;
 };

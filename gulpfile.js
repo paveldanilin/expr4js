@@ -5,7 +5,7 @@ var notify	= require('gulp-notify');
 var include	= require('gulp-include');
 var rename	= require('gulp-rename');
 
-var src 					= './src/jsexpr.js';
+var src 					= './src/main.js';
 var dest 					= './build';
 var mod_min_name 	= 'jsexpr.min.js';
 var mod_name 			= 'jsexpr.js';

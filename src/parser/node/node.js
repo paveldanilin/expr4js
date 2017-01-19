@@ -2,7 +2,8 @@ var ASTNODE = {
   EXPR:           0,
   FUNCTION_CALL:  1,
   CONST:          2,
-  VARIABLE:       3
+  VARIABLE:       3,
+  MEMBER_OF_OBJ:  4
 };
 
 /**
@@ -25,6 +26,9 @@ ASTNode.prototype.isConst = function() {
 };
 ASTNode.prototype.isVariable = function() {
   return this.type === ASTNODE.VARIABLE;
+};
+ASTNode.prototype.isMemberOfObj = function() {
+  return this.type === ASTNODE.MEMBER_OF_OBJ;
 };
 ASTNode.prototype.execute = function(scope) {
   return null;

@@ -9,21 +9,8 @@
 
     /*=require common.js*/
     /*=require lex/lex.js*/
+    /*=require lex/chain.js*/
     /*=require parser/parser.js*/
-
-    /**
-     * @param {[type]} ast_node_root [description]
-     */
-    var JSExpr = function(ast_node_root) {
-      this.ast_root = ast_node_root;
-    };
-
-    JSExpr.prototype.execute = function(scope) {
-      if(this.ast_root !== undefined && this.ast_root !== null) {
-        return this.ast_root.execute(scope);
-      }
-      return null;
-    };
 
     /**
       * ----------------------------------------------------------------------------------------------------------------
@@ -32,33 +19,25 @@
       */
       var _parse = function(input) {
         var lex    = new Lex(input);
-        var parser = new Parser(lex);
+        var parser = new Parser();
 
-        for(;;) {
-          var token = lex.getToken();
-          if(token === null) {
-            break;
+        if(!parser.parse(lex)) {
+          var lerr = lex.getLastError();
+          if(lerr !== null) {
+            console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() + ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');
+            return null;
           }
-          if(token.isOperator() && token.getOperator() === OPERATOR.WS) {
-            continue;
+
+          var perr = parser.getLastError();
+          if(perr !== null) {
+            // console.log
+            return null;
           }
-          parser.lookup(token);
         }
 
-        var lerr = lex.getLastError();
-        if(lerr !== null) {
-          console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() + ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');
-          return null;
-        }
-
-        var perr = parser.getLastError();
-        if(perr !== null) {
-          // console.log
-          return null;
-        }
-
-        return new JSExpr(parser.getAST());
+        return parser.getAST();
       };
+
     /**
      * -----------------------------------------------------------------------------------------------------------------
      * Module public methods
