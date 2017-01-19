@@ -469,7 +469,7 @@
           return new TokenConst(token, input.pos - token.length, CONST.NUMBER);
         }
     
-        if(!token.match(/^_?([a-zA-Z])+$/)) {
+        if(!token.match(/^_?([_a-zA-Z])+$/)) {
           _last_error = new LexError(token, input.pos - token.length, ERROR.BAD_IDENTIFER.CODE, ERROR.BAD_IDENTIFER.DEF);
           return null;
         }

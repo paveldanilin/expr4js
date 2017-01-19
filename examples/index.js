@@ -101,3 +101,21 @@ if(expr7) {
 }
 
 //--
+
+var expr8 = jsexpr.parse('print(to_date("Jul 8, 2005") > sysdate())');
+
+if(expr8) {
+  console.log(expr8.execute({
+    sysdate: function() {
+      return (new Date()).getTime();
+    },
+    to_date: function(date_str) {
+      return (new Date(date_str)).getTime();
+    },
+    print: function(s) {
+      return s;
+    }
+  }));
+}
+
+//--
