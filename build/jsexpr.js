@@ -638,6 +638,17 @@
       return this.op + '(' + this.left.toString() + ',' + this.right.toString() + ')';
     };
     
+    ASTNodeExpr.prototype.in = function(needle, haystack) {
+      var to = typeof haystack;
+      if(Array.isArray(haystack) || to === 'string') {
+        return haystack.indexOf(needle) !== -1;
+      }
+      if(to === 'object') {
+        return haystack[needle] !== undefined;
+      }
+      return null;
+    };
+    
     ASTNodeExpr.prototype.execute = function(scope) {
       switch(this.op) {
         case OPERATOR.SUM: return this.left.execute(scope) + this.right.execute(scope);
@@ -653,6 +664,7 @@
         case OPERATOR.OR: return this.left.execute(scope) || this.right.execute(scope);
         case OPERATOR.NEQ: return this.left.execute(scope) != this.right.execute(scope);
         case OPERATOR.DOT: return this.right.execute(this.left.execute(scope));
+        case OPERATOR.IN: return this.in(this.left.execute(scope), this.right.execute(scope));
       }
       return null;
     };
@@ -845,6 +857,9 @@
         var ident   = token.toString();
         var pos     = token.getPos();
         var nexttok = lex.getToken();
+        if(nexttok === null) {
+          return new ASTNodeVariable(ident);
+        }
         lex.putback(nexttok);
         if(nexttok.isOperator() && nexttok.is(OPERATOR.OPEN_PAR)) {
           return _processFunction(token, lex);

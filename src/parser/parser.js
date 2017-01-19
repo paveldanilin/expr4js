@@ -161,6 +161,9 @@ var Parser = function() {
     var ident   = token.toString();
     var pos     = token.getPos();
     var nexttok = lex.getToken();
+    if(nexttok === null) {
+      return new ASTNodeVariable(ident);
+    }
     lex.putback(nexttok);
     if(nexttok.isOperator() && nexttok.is(OPERATOR.OPEN_PAR)) {
       return _processFunction(token, lex);

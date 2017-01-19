@@ -67,3 +67,29 @@ if(expr3) {
 }
 
 //--
+
+var expr4 = jsexpr.parse('"a" ? "abcd"');
+
+if(expr4) {
+  console.log(expr4.execute());
+}
+
+//--
+
+var expr5 = jsexpr.parse('"a" ? "ABCD"');
+
+if(expr5) {
+  console.log(expr5.execute());
+}
+
+//--
+
+var expr6 = jsexpr.parse('"5546" ? packs');
+
+if(expr6) {
+  console.log(expr6.execute({
+    packs: ['1123', '5546', '3324']
+  }));
+}
+
+//--
