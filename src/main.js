@@ -9,7 +9,6 @@
 
     /*=require common.js*/
     /*=require lex/lex.js*/
-    /*=require lex/chain.js*/
     /*=require parser/parser.js*/
 
     /**

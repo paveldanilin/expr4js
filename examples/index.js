@@ -93,3 +93,11 @@ if(expr6) {
 }
 
 //--
+
+var expr7 = jsexpr.parse('(1 == 2 and 44 == 44) or 1 == 1');
+
+if(expr7) {
+  console.log(expr7.execute());
+}
+
+//--

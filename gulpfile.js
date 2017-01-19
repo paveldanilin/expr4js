@@ -15,7 +15,7 @@ gulp.task('build-clean', function() {
 	return gulp.src('build/*').pipe(clean());
 });
 
-gulp.task('build-min', ['build-clean'], function() {
+gulp.task('build-min', function() {
   return gulp.src(src)
     .pipe(include())
     .pipe(uglify())
@@ -24,7 +24,7 @@ gulp.task('build-min', ['build-clean'], function() {
     .pipe(notify({ message: 'Build task completed' }));
 });
 
-gulp.task('build', ['build-clean'], function() {
+gulp.task('build', function() {
   return gulp.src(src)
     .pipe(include())
 		.pipe(rename(mod_name))
