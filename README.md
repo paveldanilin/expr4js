@@ -22,6 +22,7 @@ var jsexpr = require('jsexpr.min.js');
 
 ## Examples
 
+### Basic example
 ````
 var myexpr = jsexpr.parse(expression);
 if(myexpr) {
