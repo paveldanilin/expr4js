@@ -31,7 +31,7 @@ if(myexpr) {
 }
 ```
 
-```
+```javascript
 var expr = jsexpr.parse('1 == 1');
 
 if(expr) {
@@ -39,7 +39,7 @@ if(expr) {
 }
 ```
 
-```
+```javascript
 var expr = jsexpr.parse('1 == 2');
 
 if(expr) {
@@ -47,7 +47,7 @@ if(expr) {
 }
 ```
 
-```
+```javascript
 var expr = jsexpr.parse('id == 12345');
 
 if(expr) {
@@ -57,7 +57,7 @@ if(expr) {
 }
 ```
 
-```
+```javascript
 var expr = jsexpr.parse('subscriber.id == 99');
 
 if(expr) {
@@ -69,7 +69,7 @@ if(expr) {
 }
 ```
 
-```
+```javascript
 var expr = jsexpr.parse('subscriber.id == 99 and subscriber.name == "Ivan"');
 
 if(expr) {
@@ -82,7 +82,7 @@ if(expr) {
 }
 ```
 
-```
+```javascript
 var expr = jsexpr.parse('subscriber.test() == "99:Ivan"');
 
 if(expr) {
