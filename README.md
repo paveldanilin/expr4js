@@ -3,10 +3,10 @@
 Expression parser and executor.
 
 ## Allowed operators
-  Relational and comparison operators: >, <, >=, <=, ==, !=
-  Arithmetic operatos: *, /, -, +
-  Logical operators: and, or
-  Member access: .
+  - Relational and comparison operators: >, <, >=, <=, ==, !=
+  - Arithmetic operatos: *, /, -, +
+  - Logical operators: and, or
+  - Member access: .
   
 ## Usage
 #### Node
