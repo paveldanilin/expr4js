@@ -10,11 +10,11 @@ JavaScript expression parser and executor module.
   
 ## Usage
 #### Node
-```
+```javascript
 var jsexpr = require('jsexpr.min.js');
 ```
 #### Html
-```
+```html
 <head>
   <link rel="stylesheet" href="jsexpr.min.css">
 </head>
