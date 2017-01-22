@@ -1,4 +1,4 @@
-** jsexpr **
+**jsexpr**
 
 JavaScript expression parser and executor module. 
 
