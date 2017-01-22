@@ -1,6 +1,5 @@
-**jsexpr**
-
-JavaScript expression parser and executor module. 
+# jsexpr
+**jsexpr** is a JavaScript module for expression parsing. 
 
 ## Allowed operators
   - Relational and comparison operators: >, <, >=, <=, ==, !=
