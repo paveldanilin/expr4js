@@ -10,43 +10,43 @@ Expression parser and executor.
   
 ## Usage
 ### Node
-...
+```
 var jsexpr = require('jsexpr.min.js');
-...
+```
 ### Html
-...
+```
 <head>
   <link rel="stylesheet" href="jsexpr.min.css">
 </head>
-...
+```
 
 ## Examples
 
-...
+````
 var myexpr = jsexpr.parse(expression);
 if(myexpr) {
   var result = myexpr.execute(scope);
   console.log(result);
 }
-...
+```
 
-...
+```
 var expr = jsexpr.parse('1 == 1');
 
 if(expr) {
   console.log(expr.execute()); // Will return 'TRUE'
 }
-...
+```
 
-...
+```
 var expr = jsexpr.parse('1 == 2');
 
 if(expr) {
   console.log(expr.execute()); // Will return 'FALSE'
 }
-...
+```
 
-...
+```
 var expr = jsexpr.parse('id == 12345');
 
 if(expr) {
@@ -54,9 +54,9 @@ if(expr) {
     id: 12345
   })); // Will return 'TRUE'
 }
-...
+```
 
-...
+```
 var expr = jsexpr.parse('subscriber.id == 99');
 
 if(expr) {
@@ -66,9 +66,9 @@ if(expr) {
     }
   })); // Will return 'TRUE'
 }
-...
+```
 
-...
+```
 var expr = jsexpr.parse('subscriber.id == 99 and subscriber.name == "Ivan"');
 
 if(expr) {
@@ -79,9 +79,9 @@ if(expr) {
     }
   })); // Will return 'TRUE'
 }
-...
+```
 
-...
+```
 var expr = jsexpr.parse('subscriber.test() == "99:Ivan"');
 
 if(expr) {
@@ -95,4 +95,4 @@ if(expr) {
     }
   })); // Will return 'TRUE'
 }
-...
+```
