@@ -1,6 +1,6 @@
 # jsexpr
 
-Expression parser and executor.
+JavaScript expression parser and executor. 
 
 ## Allowed operators
   - Relational and comparison operators: >, <, >=, <=, ==, !=
