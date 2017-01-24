@@ -15,7 +15,7 @@ var jsexpr = require('jsexpr.min.js');
 #### Html
 ```html
 <head>
-  <link rel="stylesheet" href="jsexpr.min.css">
+  <link rel="stylesheet" href="jsexpr.min.js">
 </head>
 ```
 
