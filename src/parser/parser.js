@@ -12,8 +12,8 @@ var Parser = function() {
 
   function _token2astnode(token) {
     switch(token.getType()) {
-      case TTOKEN.IDENTIFER: return new ASTNodeVariable(token.toString());
-      case TTOKEN.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
+      case TOKEN_TYPE.IDENTIFER: return new ASTNodeVariable(token.toString());
+      case TOKEN_TYPE.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
     }
     return null;
   };
@@ -204,9 +204,9 @@ var Parser = function() {
 
   function _processToken(token, lex) {
     switch(token.getType()) {
-      case TTOKEN.IDENTIFER:
+      case TOKEN_TYPE.IDENTIFER:
         return _processIdentifer(token, lex);
-      case TTOKEN.CONST:
+      case TOKEN_TYPE.CONST:
         return _processConst(token);
     }
     return null;
@@ -214,13 +214,13 @@ var Parser = function() {
 
   function _process(token, lex, operators, operands) {
     switch(token.getType()) {
-      case TTOKEN.IDENTIFER:
+      case TOKEN_TYPE.IDENTIFER:
            operands.push(_processToken(token, lex));
         break;
-      case TTOKEN.CONST:
+      case TOKEN_TYPE.CONST:
           operands.push(_processToken(token, lex));
         break;
-      case TTOKEN.OPERATOR:
+      case TOKEN_TYPE.OPERATOR:
           _processOperator(token, operators, operands);
         break;
     }

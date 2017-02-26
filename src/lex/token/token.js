@@ -1,47 +1,83 @@
 /**
- * Base token
- * @param {[type]} token [description]
- * @param {[type]} pos   [description]
+ * [Token]
+ * @param {number} type  [description]
+ * @param {string} token [description]
+ * @param {number} pos   [description]
  */
 var Token = function(type, token, pos) {
   this.type  = type;
   this.token = token;
   this.pos   = pos;
 };
-Token.prototype = {
-  getType: function() {
-    return this.type;
-  },
 
-  toString: function() {
-    return this.token;
-  },
+/**
+ * [getType]
+ * @return {number} [description]
+ */
+Token.prototype.getType= function() {
+  return this.type;
+};
 
-  getPos: function() {
-    return this.pos;
-  },
+/**
+ * [toString]
+ * @return {string} [description]
+ */
+Token.prototype.toString = function() {
+  return this.token;
+};
 
-  isError: function() {
-    return this.type === TTOKEN.ERROR;
-  },
+/**
+ * [getPos]
+ * @return {number} [description]
+ */
+Token.prototype.getPos = function() {
+  return this.pos;
+};
 
-  isIdentifer: function() {
-    return this.type === TTOKEN.IDENTIFER;
-  },
+/**
+ * [isError]
+ * @return {Boolean} [description]
+ */
+Token.prototype.isError = function() {
+  return this.type === TOKEN_TYPE.ERROR;
+};
 
-  isConst: function() {
-    return this.type === TTOKEN.CONST;
-  },
+/**
+ * [isIdentifer]
+ * @return {Boolean} [description]
+ */
+Token.prototype.isIdentifer= function() {
+  return this.type === TOKEN_TYPE.IDENTIFER;
+};
 
-  isOperator: function() {
-    return this.type === TTOKEN.OPERATOR;
-  },
+/**
+ * [isConst]
+ * @return {Boolean} [description]
+ */
+Token.prototype.isConst = function() {
+  return this.type === TOKEN_TYPE.CONST;
+};
 
-  isKeyword: function() {
-    return this.type === TTOKEN.KEYWORD;
-  },
+/**
+ * [isOperator]
+ * @return {Boolean} [description]
+ */
+Token.prototype.isOperator = function() {
+  return this.type === TOKEN_TYPE.OPERATOR;
+};
 
-  clone: function() {
-    return new Token(this.type, this.token, this.pos);
-  }
+/**
+ * [isKeyword]
+ * @return {Boolean} [description]
+ */
+Token.prototype.isKeyword = function() {
+  return this.type === TOKEN_TYPE.KEYWORD;
+};
+
+/**
+ * [clone]
+ * @return {Token} [description]
+ */
+Token.prototype.clone = function() {
+  return new Token(this.type, this.token, this.pos);
 };

@@ -1,4 +1,4 @@
-var TTOKEN = {
+var TOKEN_TYPE = {
   ERROR:      0,
   IDENTIFER:  1,
   CONST:      2,
@@ -24,25 +24,30 @@ var OPERATOR = {
   OPEN_PAR:   114, // (
   CLOSE_PAR:  115, // )
   IN:         116, // ? (const) ? (object/const[string])
-  COMMA:      117
+  COMMA:      117,
+  MOD:        118 // %
 };
 
 var ERROR = {
   PARSE_STRING     : {
     CODE: 1000,
-    DEF: 'Unable to parse string'
+    MSG: 'Unable to parse string'
   },
   UNKNOWN_OPERATOR : {
     CODE: 1001,
-    DEF: 'Unknown operator'
+    MSG: 'Unknown operator'
   },
   BAD_NUMBER       : {
     CODE: 1002,
-    DEF: 'Bad number format'
+    MSG: 'Bad number format'
   },
   BAD_IDENTIFER    : {
     CODE: 1003,
-    DEF: 'Bad identifer, identifer allowed cahrs [_a-zA-Z]'
+    MSG: 'Bad identifer, identifer allowed cahrs [_a-zA-Z]'
+  },
+  UNABLE_TO_PUTBACK_NON_TOKEN: {
+    CODE: 1004,
+    MSG: 'Unable to putback non token object'
   }
 };
 
@@ -56,8 +61,10 @@ var QUOTE = {
   DOUBLE: 2
 };
 
-var _keywords = {};
-var _stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-'];
+var _keywords = {
+  'in': 1
+};
+var _stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-', '%'];
 var _precedence = {
   '(': 1,
   ')': 2,
@@ -65,7 +72,7 @@ var _precedence = {
   '&&': 4, 'and': 4,
   '<': 5, '>': 5, '<=': 5, '>=': 5, '==': 5, '!=': 5, '?': 5,
   '+':  6, '-': 6,
-  '*':  7, '/': 7,
+  '*':  7, '/': 7, '%': 7,
   '.': 8
 };
 
@@ -78,6 +85,15 @@ var _precedence = {
 /*=require token/operator.js*/
 
 var Lex = function(input) {
+
+  if(typeof input === 'string') {
+    var expr = input;
+    input = {
+      buf:     expr,
+      buf_len: expr.length,
+      pos:     0
+    };
+  }
 
   var _input      = input;
   var _prev_token = null;
@@ -100,7 +116,6 @@ var Lex = function(input) {
       }
       str += input.buf[j];
     }
-
 
     if(!complete) {
       return null;
@@ -152,6 +167,9 @@ var Lex = function(input) {
       case '/':
         op_code = OPERATOR.DIV;
         break;
+      case '%':
+        op_code = OPERATOR.MOD;
+        break;
       case "and":
         op_code = OPERATOR.AND;
         break;
@@ -193,7 +211,8 @@ var Lex = function(input) {
 
     return {
       code:  op_code,
-      token: token
+      token: token,
+      precedence: _precedence[token] !== undefined ? _precedence[token] : null
     };
   };
 
@@ -248,7 +267,7 @@ var Lex = function(input) {
             var begin_pos = input.pos;
             var str = _getString(QUOTE.DOUBLE, begin_pos, input);
             if(str === null) {
-              _last_error = new LexError('', begin_pos, ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.DEF);
+              _last_error = new LexError(ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.MSG, begin_pos);
               return null;
             }
             return new TokenConst(str, begin_pos, CONST.STRING);
@@ -256,7 +275,7 @@ var Lex = function(input) {
             var begin_pos = input.pos;
             var str = _getString(QUOTE.SINGLE, begin_pos, input);
             if(str === null) {
-              _last_error = new LexError('', begin_pos, ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.DEF);
+              _last_error = new LexError(ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.MSG, begin_pos);
               return null;
             }
             return new TokenConst(str, begin_pos, CONST.STRING);
@@ -264,11 +283,11 @@ var Lex = function(input) {
 
           var op = _getOp(ch, input);
           if(op.code === null) {
-            _last_error = new LexError(ch, input.pos, ERROR.UNKNOWN_OPERATOR.CODE, ERROR.UNKNOWN_OPERATOR.DEF);
+            _last_error = new LexError(ERROR.UNKNOWN_OPERATOR.CODE, ERROR.UNKNOWN_OPERATOR.MSG, input.pos, ch);
             return null;
           }
           input.pos++;
-          return new TokenOperator(op.token, input.pos, op.code);
+          return new TokenOperator(op.token, input.pos, op.code, op.precedence);
         }else {
           if((ch === '.' || _isDigit(ch)) && token.match(/([0-9])/)) {
             token += ch;
@@ -293,25 +312,29 @@ var Lex = function(input) {
 
     var op = _getOp(token);
     if(op.code !== null) {
-      return new TokenOperator(token, input.pos - token.length, op.code);
+      return new TokenOperator(token, input.pos - token.length, op.code, op.precedence);
     }
 
     if(token.match(/(^|[ \t])([-+]?(\d+|\.\d+|\d+\.\d*))($|[^+-.])/)) {
       if(isNaN(+token)) {
-        _last_error = new LexError(token, input.pos - token.length, ERROR.BAD_NUMBER.CODE, ERROR.BAD_NUMBER.DEF);
+        _last_error = new LexError(ERROR.BAD_NUMBER.CODE, ERROR.BAD_NUMBER.MSG, input.pos - token.length, token);
         return null;
       }
       return new TokenConst(token, input.pos - token.length, CONST.NUMBER);
     }
 
     if(!token.match(/^_?([_a-zA-Z])+$/)) {
-      _last_error = new LexError(token, input.pos - token.length, ERROR.BAD_IDENTIFER.CODE, ERROR.BAD_IDENTIFER.DEF);
+      _last_error = new LexError(ERROR.BAD_IDENTIFER.CODE, ERROR.BAD_IDENTIFER.MSG, input.pos - token.length, token);
       return null;
     }
 
     return new TokenIdentifer(token, input.pos - token.length);
   };
 
+  /**
+   * [Return next token from input sequence]
+   * @return {Token} Token object
+   */
   this.getToken = function() {
     if(_back_token !== null) {
       var t = _back_token.clone();
@@ -322,10 +345,23 @@ var Lex = function(input) {
     return _prev_token;
   };
 
+  /**
+   * [Putback token object]
+   * @param  {Token} token Token object
+   */
   this.putback = function(token) {
-    _back_token = token;
+    if(token instanceof Token === false) {
+      _last_error = new  LexError(ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.CODE, ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.MSG);
+      return false;
+    }
+    _back_token = token.clone();//token;
+    return true;
   };
 
+  /**
+   * [Return last error object]
+   * @return {LexError} LexError object
+   */
   this.getLastError = function() {
     return _last_error;
   };

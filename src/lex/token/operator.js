@@ -1,27 +1,46 @@
 /**
- * Token operator
- * @param {[type]} token [description]
- * @param {[type]} pos   [description]
- * @param {[type]} op  [description]
+ * [TokenOperator]
+ * @param {string} token      [description]
+ * @param {number} pos        [description]
+ * @param {number} op         [description]
+ * @param {number} precedence [description]
  */
-var TokenOperator = function(token, pos, op) {
-  Token.call(this, TTOKEN.OPERATOR, token, pos);
+var TokenOperator = function(token, pos, op, precedence) {
+  Token.call(this, TOKEN_TYPE.OPERATOR, token, pos);
   this.op    = op;
+  this.precedence = precedence;
 };
 _extends(TokenOperator, Token);
 
-TokenOperator.prototype.getOperator = function() {
+/**
+ * [getOperator]
+ * @return {number} [description]
+ */
+TokenOperator.prototype.getOperator =function() {
   return this.op;
 };
 
+/**
+ * [getPrecedence]
+ * @return {number} [description]
+ */
 TokenOperator.prototype.getPrecedence = function() {
-  return _precedence[this.token] !== undefined ? _precedence[this.token] : null;
+  return this.precedence;
 };
 
+/**
+ * [is]
+ * @param  {number}  op_code [description]
+ * @return {Boolean}         [description]
+ */
 TokenOperator.prototype.is = function(op_code) {
   return this.op === op_code;
 };
 
+/**
+ * [clone]
+ * @return {TokenOperator} [description]
+ */
 TokenOperator.prototype.clone = function() {
-  return new TokenOperator(this.toString(), this.getPos(), this.getOperator());
+  return new TokenOperator(this.toString(), this.getPos(), this.getOperator(), this.getPrecedence());
 };
