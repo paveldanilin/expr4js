@@ -32,6 +32,7 @@ ASTNodeExpr.prototype.execute = function(scope) {
     case OPERATOR.DIF: return this.left.execute(scope) - this.right.execute(scope);
     case OPERATOR.MUL: return this.left.execute(scope) * this.right.execute(scope);
     case OPERATOR.DIV: return this.left.execute(scope) / this.right.execute(scope);
+    case OPERATOR.MOD: return this.left.execute(scope) % this.right.execute(scope); 
     case OPERATOR.GT: return this.left.execute(scope) > this.right.execute(scope);
     case OPERATOR.LT: return this.left.execute(scope) < this.right.execute(scope);
     case OPERATOR.EQ: return this.left.execute(scope) == this.right.execute(scope);

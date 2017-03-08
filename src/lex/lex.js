@@ -25,7 +25,8 @@ var OPERATOR = {
   CLOSE_PAR:  115, // )
   IN:         116, // ? (const) ? (object/const[string])
   COMMA:      117,
-  MOD:        118 // %
+  MOD:        118, // %
+  NOT:        119 // !
 };
 
 var ERROR = {
@@ -110,7 +111,8 @@ var Lex = function(input) {
     var complete = false;
 
     for(j; j < input.buf_len; j++) {
-      if( (begin_quote === QUOTE.DOUBLE && input.buf[j] === '"') || (begin_quote === QUOTE.SINGLE && input.buf[j] === '\'')) {
+      if( (begin_quote === QUOTE.DOUBLE && input.buf[j] === '"') ||
+          (begin_quote === QUOTE.SINGLE && input.buf[j] === '\'') ) {
         complete = true;
         break;
       }

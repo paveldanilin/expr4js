@@ -4,7 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
-    "test": "mocha test/test.js"
+    "test": "mocha tests/test.js"
   },
   "author": "Pavel.Danilin"
 }

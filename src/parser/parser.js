@@ -4,6 +4,7 @@
 /*=require node/func.js*/
 /*=require node/variable.js*/
 /*=require node/expr.js*/
+/*=require node/uexpr.js*/
 /*=require node/member-obj.js*/
 
 var Parser = function() {
@@ -30,6 +31,15 @@ var Parser = function() {
     }
     //console.log(operator.toString() + ' NODE(' + left_operand.toString() + ',' + right_operand.toString() + ')');
     return new ASTNodeExpr(operator.getOperator(), left_operand, right_operand);
+  };
+
+  function _createUnaryExprNode(operators, operands) {
+    var operator = operators.pop();
+    var operand = operands.pop();
+    if(operand instanceof Token) {
+      operand = _token2astnode(operand);
+    }
+    return new ASTNodeUnaryExpr(operator.getOperator(), operand);
   };
 
 

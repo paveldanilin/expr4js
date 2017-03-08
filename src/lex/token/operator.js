@@ -37,6 +37,13 @@ TokenOperator.prototype.is = function(op_code) {
   return this.op === op_code;
 };
 
+TokenOperator.prototype.isUnary = function() {
+  switch(this.op) {
+    case OPERATOR.NOT: return true;
+  }
+  return false;
+};
+
 /**
  * [clone]
  * @return {TokenOperator} [description]
