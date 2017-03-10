@@ -1,9 +1,10 @@
 var ASTNODE = {
   EXPR:           0,
-  FUNCTION_CALL:  1,
-  CONST:          2,
-  VARIABLE:       3,
-  MEMBER_OF_OBJ:  4
+  UNARY_EXPR:     1,
+  FUNCTION_CALL:  2,
+  CONST:          3,
+  VARIABLE:       4,
+  MEMBER_OF_OBJ:  5
 };
 
 /**

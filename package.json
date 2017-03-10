@@ -1,0 +1,10 @@
+{
+  "name": "jsexpr",
+  "version": "0.0.1",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "mocha tests/test.js"
+  },
+  "author": "Pavel.Danilin"
+}
