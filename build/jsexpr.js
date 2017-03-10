@@ -956,7 +956,8 @@
         if(!parser.parse(lex)) {
           var lerr = lex.getLastError();
           if(lerr !== null) {
-            console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() + ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');
+            console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() +
+                        ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');
             return null;
           }
 
