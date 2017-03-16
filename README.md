@@ -28,25 +28,19 @@ if(myexpr) {
   var result = myexpr.execute(scope);
   console.log(result);
 }
-```
 
-```javascript
 var expr = jsexpr.parse('1 == 1');
 
 if(expr) {
   console.log(expr.execute()); // Will return 'TRUE'
 }
-```
 
-```javascript
 var expr = jsexpr.parse('1 == 2');
 
 if(expr) {
   console.log(expr.execute()); // Will return 'FALSE'
 }
-```
 
-```javascript
 var expr = jsexpr.parse('id == 12345');
 
 if(expr) {
@@ -54,9 +48,7 @@ if(expr) {
     id: 12345
   })); // Will return 'TRUE'
 }
-```
 
-```javascript
 var expr = jsexpr.parse('subscriber.id == 99');
 
 if(expr) {
@@ -66,9 +58,7 @@ if(expr) {
     }
   })); // Will return 'TRUE'
 }
-```
 
-```javascript
 var expr = jsexpr.parse('subscriber.id == 99 and subscriber.name == "Ivan"');
 
 if(expr) {
@@ -79,9 +69,7 @@ if(expr) {
     }
   })); // Will return 'TRUE'
 }
-```
 
-```javascript
 var expr = jsexpr.parse('subscriber.test() == "99:Ivan"');
 
 if(expr) {
@@ -95,9 +83,7 @@ if(expr) {
     }
   })); // Will return 'TRUE'
 }
-```
 
-```javascript
  /*
     Filtering array of objects.
     Output will be:
