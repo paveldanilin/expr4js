@@ -5,9 +5,10 @@
  * @param {number} op         [description]
  * @param {number} precedence [description]
  */
-var TokenOperator = function(token, pos, op, precedence) {
+var TokenOperator = function(token, pos, op, precedence)
+{
   Token.call(this, TOKEN_TYPE.OPERATOR, token, pos);
-  this.op    = op;
+  this.op = op;
   this.precedence = precedence;
 };
 _extends(TokenOperator, Token);
@@ -16,7 +17,7 @@ _extends(TokenOperator, Token);
  * [getOperator]
  * @return {number} [description]
  */
-TokenOperator.prototype.getOperator =function() {
+TokenOperator.prototype.getOperator = function() {
   return this.op;
 };
 

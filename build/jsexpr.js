@@ -14,7 +14,7 @@
     };
 
     
-    var TTOKEN = {
+    var TOKEN_TYPE = {
       ERROR:      0,
       IDENTIFER:  1,
       CONST:      2,
@@ -40,25 +40,31 @@
       OPEN_PAR:   114, // (
       CLOSE_PAR:  115, // )
       IN:         116, // ? (const) ? (object/const[string])
-      COMMA:      117
+      COMMA:      117,
+      MOD:        118, // %
+      NOT:        119 // !
     };
     
     var ERROR = {
       PARSE_STRING     : {
         CODE: 1000,
-        DEF: 'Unable to parse string'
+        MSG: 'Unable to parse string'
       },
       UNKNOWN_OPERATOR : {
         CODE: 1001,
-        DEF: 'Unknown operator'
+        MSG: 'Unknown operator'
       },
       BAD_NUMBER       : {
         CODE: 1002,
-        DEF: 'Bad number format'
+        MSG: 'Bad number format'
       },
       BAD_IDENTIFER    : {
         CODE: 1003,
-        DEF: 'Bad identifer, identifer allowed cahrs [_a-zA-Z]'
+        MSG: 'Bad identifer, identifer allowed cahrs [_a-zA-Z]'
+      },
+      UNABLE_TO_PUTBACK_NON_TOKEN: {
+        CODE: 1004,
+        MSG: 'Unable to putback non token object'
       }
     };
     
@@ -72,8 +78,10 @@
       DOUBLE: 2
     };
     
-    var _keywords = {};
-    var _stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-'];
+    var _keywords = {
+      'in': 1
+    };
+    var _stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-', '%'];
     var _precedence = {
       '(': 1,
       ')': 2,
@@ -81,168 +89,282 @@
       '&&': 4, 'and': 4,
       '<': 5, '>': 5, '<=': 5, '>=': 5, '==': 5, '!=': 5, '?': 5,
       '+':  6, '-': 6,
-      '*':  7, '/': 7,
+      '*':  7, '/': 7, '%': 7,
       '.': 8
     };
     
     /*=require ../common.js*/
-    var LexError = function(token, pos, code, def) {
-      var _token = token;
-      var _pos   = pos;
+    /**
+     * [LexError]
+     * @param {number} code
+     * @param {string} msg
+     * @param {number} pos
+     * @param {string} token
+     */
+    var LexError = function(code, msg, pos, token)
+    {
       var _code  = code;
-      var _def   = def;
+      var _msg   = msg;
+      var _pos   = pos;
+      var _token = token;
     
+      /**
+       * [getToken]
+       * @return {string} [description]
+       */
       this.getToken = function() {
         return _token;
       };
-      
+    
+      /**
+       * [getPos]
+       * @return {number} [description]
+       */
       this.getPos = function() {
         return _pos;
       };
     
+      /**
+       * [getCode]
+       * @return {number} [description]
+       */
       this.getCode = function() {
         return _code;
       };
     
-      this.getDef = function() {
-        return _def;
+      /**
+       * [getMessage]
+       * @return {string}
+       */
+      this.getMessage = function() {
+        return _msg;
       };
     
     };
     
     /**
-     * Base token
-     * @param {[type]} token [description]
-     * @param {[type]} pos   [description]
+     * [Token]
+     * @param {number} type  [description]
+     * @param {string} token [description]
+     * @param {number} pos   [description]
      */
     var Token = function(type, token, pos) {
       this.type  = type;
       this.token = token;
       this.pos   = pos;
     };
-    Token.prototype = {
-      getType: function() {
-        return this.type;
-      },
     
-      toString: function() {
-        return this.token;
-      },
-    
-      getPos: function() {
-        return this.pos;
-      },
-    
-      isError: function() {
-        return this.type === TTOKEN.ERROR;
-      },
-    
-      isIdentifer: function() {
-        return this.type === TTOKEN.IDENTIFER;
-      },
-    
-      isConst: function() {
-        return this.type === TTOKEN.CONST;
-      },
-    
-      isOperator: function() {
-        return this.type === TTOKEN.OPERATOR;
-      },
-    
-      isKeyword: function() {
-        return this.type === TTOKEN.KEYWORD;
-      },
-    
-      clone: function() {
-        return new Token(this.type, this.token, this.pos);
-      }
+    /**
+     * [getType]
+     * @return {number} [description]
+     */
+    Token.prototype.getType= function() {
+      return this.type;
     };
     
     /**
-     * Token const
-     * @param {[type]} token [description]
-     * @param {[type]} pos   [description]
-     * @param {[type]} op  [description]
+     * [toString]
+     * @return {string} [description]
+     */
+    Token.prototype.toString = function() {
+      return this.token;
+    };
+    
+    /**
+     * [getPos]
+     * @return {number} [description]
+     */
+    Token.prototype.getPos = function() {
+      return this.pos;
+    };
+    
+    /**
+     * [isError]
+     * @return {Boolean} [description]
+     */
+    Token.prototype.isError = function() {
+      return this.type === TOKEN_TYPE.ERROR;
+    };
+    
+    /**
+     * [isIdentifer]
+     * @return {Boolean} [description]
+     */
+    Token.prototype.isIdentifer= function() {
+      return this.type === TOKEN_TYPE.IDENTIFER;
+    };
+    
+    /**
+     * [isConst]
+     * @return {Boolean} [description]
+     */
+    Token.prototype.isConst = function() {
+      return this.type === TOKEN_TYPE.CONST;
+    };
+    
+    /**
+     * [isOperator]
+     * @return {Boolean} [description]
+     */
+    Token.prototype.isOperator = function() {
+      return this.type === TOKEN_TYPE.OPERATOR;
+    };
+    
+    /**
+     * [isKeyword]
+     * @return {Boolean} [description]
+     */
+    Token.prototype.isKeyword = function() {
+      return this.type === TOKEN_TYPE.KEYWORD;
+    };
+    
+    /**
+     * [clone]
+     * @return {Token} [description]
+     */
+    Token.prototype.clone = function() {
+      return new Token(this.type, this.token, this.pos);
+    };
+    
+    /**
+     * [TokenConst]
+     * @param {string} token [description]
+     * @param {number} pos   [description]
+     * @param {number} dtype Value of CONST global object
      */
     var TokenConst = function(token, pos, dtype) {
-      Token.call(this, TTOKEN.CONST, token, pos);
+      Token.call(this, TOKEN_TYPE.CONST, token, pos);
       this.dtype = dtype;
     };
     _extends(TokenConst, Token);
     
+    /**
+     * [getDataType]
+     * @return {number} [description]
+     */
     TokenConst.prototype.getDataType = function() {
       return this.dtype;
     };
     
+    /**
+     * [clone]
+     * @return {TokenConst} [description]
+     */
     TokenConst.prototype.clone = function() {
       return new TokenConst(this.toString(), this.getPos(), this.getDataType());
     };
     
     /**
-     * Token identifer
-     * @param {[type]} token [description]
-     * @param {[type]} pos   [description]
-     * @param {[type]} op  [description]
+     * [TokenIdentifer]
+     * @param {string} token [description]
+     * @param {number} pos   [description]
      */
     var TokenIdentifer = function(token, pos) {
-      Token.call(this, TTOKEN.IDENTIFER, token, pos);
+      Token.call(this, TOKEN_TYPE.IDENTIFER, token, pos);
     };
     _extends(TokenIdentifer, Token);
     
+    /**
+     * [clone]
+     * @return {[TokenIdentifer} [description]
+     */
     TokenIdentifer.prototype.clone = function() {
       return new TokenIdentifer(this.toString(), this.getPos());
     };
     
     /**
-     * Token keyword
-     * @param {[type]} token [description]
-     * @param {[type]} pos   [description]
-     * @param {[type]} op  [description]
+     * [TokenKeyword]
+     * @param {string} token [description]
+     * @param {number} pos   [description]
+     * @param {number} code  [description]
      */
     var TokenKeyword = function(token, pos, code) {
-      Token.call(this, TTOKEN.KEYWORD, token, pos);
+      Token.call(this, TOKEN_TYPE.KEYWORD, token, pos);
       this.code  = code;
     };
     _extends(TokenKeyword, Token);
     
+    /**
+     * [getCode]
+     * @return {number} [description]
+     */
     TokenKeyword.prototype.getCode = function() {
       return this.code;
     };
     
+    /**
+     * [clone]
+     * @return {TokenKeyword} [description]
+     */
     TokenKeyword.prototype.clone = function() {
       return new TokenKeyword(this.toString(), this.getPos(), this.getCode());
     };
     
     /**
-     * Token operator
-     * @param {[type]} token [description]
-     * @param {[type]} pos   [description]
-     * @param {[type]} op  [description]
+     * [TokenOperator]
+     * @param {string} token      [description]
+     * @param {number} pos        [description]
+     * @param {number} op         [description]
+     * @param {number} precedence [description]
      */
-    var TokenOperator = function(token, pos, op) {
-      Token.call(this, TTOKEN.OPERATOR, token, pos);
+    var TokenOperator = function(token, pos, op, precedence) {
+      Token.call(this, TOKEN_TYPE.OPERATOR, token, pos);
       this.op    = op;
+      this.precedence = precedence;
     };
     _extends(TokenOperator, Token);
     
-    TokenOperator.prototype.getOperator = function() {
+    /**
+     * [getOperator]
+     * @return {number} [description]
+     */
+    TokenOperator.prototype.getOperator =function() {
       return this.op;
     };
     
+    /**
+     * [getPrecedence]
+     * @return {number} [description]
+     */
     TokenOperator.prototype.getPrecedence = function() {
-      return _precedence[this.token] !== undefined ? _precedence[this.token] : null;
+      return this.precedence;
     };
     
+    /**
+     * [is]
+     * @param  {number}  op_code [description]
+     * @return {Boolean}         [description]
+     */
     TokenOperator.prototype.is = function(op_code) {
       return this.op === op_code;
     };
     
+    TokenOperator.prototype.isUnary = function() {
+      switch(this.op) {
+        case OPERATOR.NOT: return true;
+      }
+      return false;
+    };
+    
+    /**
+     * [clone]
+     * @return {TokenOperator} [description]
+     */
     TokenOperator.prototype.clone = function() {
-      return new TokenOperator(this.toString(), this.getPos(), this.getOperator());
+      return new TokenOperator(this.toString(), this.getPos(), this.getOperator(), this.getPrecedence());
     };
     
     
-    var Lex = function(input) {
+    var Lex = function(input)
+    {
+      if(typeof input === 'string') {
+        var expr = input;
+        input = {
+          buf:     expr,
+          buf_len: expr.length,
+          pos:     0
+        };
+      }
     
       var _input      = input;
       var _prev_token = null;
@@ -259,13 +381,13 @@
         var complete = false;
     
         for(j; j < input.buf_len; j++) {
-          if( (begin_quote === QUOTE.DOUBLE && input.buf[j] === '"') || (begin_quote === QUOTE.SINGLE && input.buf[j] === '\'')) {
+          if( (begin_quote === QUOTE.DOUBLE && input.buf[j] === '"') ||
+              (begin_quote === QUOTE.SINGLE && input.buf[j] === '\'') ) {
             complete = true;
             break;
           }
           str += input.buf[j];
         }
-    
     
         if(!complete) {
           return null;
@@ -297,6 +419,8 @@
               input.pos++;
               token += '=';
               op_code = OPERATOR.NEQ;
+            }else {
+              op_code = OPERATOR.NOT;
             }
             break;
           case '(':
@@ -316,6 +440,9 @@
             break;
           case '/':
             op_code = OPERATOR.DIV;
+            break;
+          case '%':
+            op_code = OPERATOR.MOD;
             break;
           case "and":
             op_code = OPERATOR.AND;
@@ -358,7 +485,8 @@
     
         return {
           code:  op_code,
-          token: token
+          token: token,
+          precedence: _precedence[token] !== undefined ? _precedence[token] : null
         };
       };
     
@@ -413,7 +541,7 @@
                 var begin_pos = input.pos;
                 var str = _getString(QUOTE.DOUBLE, begin_pos, input);
                 if(str === null) {
-                  _last_error = new LexError('', begin_pos, ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.DEF);
+                  _last_error = new LexError(ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.MSG, begin_pos);
                   return null;
                 }
                 return new TokenConst(str, begin_pos, CONST.STRING);
@@ -421,7 +549,7 @@
                 var begin_pos = input.pos;
                 var str = _getString(QUOTE.SINGLE, begin_pos, input);
                 if(str === null) {
-                  _last_error = new LexError('', begin_pos, ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.DEF);
+                  _last_error = new LexError(ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.MSG, begin_pos);
                   return null;
                 }
                 return new TokenConst(str, begin_pos, CONST.STRING);
@@ -429,11 +557,11 @@
     
               var op = _getOp(ch, input);
               if(op.code === null) {
-                _last_error = new LexError(ch, input.pos, ERROR.UNKNOWN_OPERATOR.CODE, ERROR.UNKNOWN_OPERATOR.DEF);
+                _last_error = new LexError(ERROR.UNKNOWN_OPERATOR.CODE, ERROR.UNKNOWN_OPERATOR.MSG, input.pos, ch);
                 return null;
               }
               input.pos++;
-              return new TokenOperator(op.token, input.pos, op.code);
+              return new TokenOperator(op.token, input.pos, op.code, op.precedence);
             }else {
               if((ch === '.' || _isDigit(ch)) && token.match(/([0-9])/)) {
                 token += ch;
@@ -458,25 +586,29 @@
     
         var op = _getOp(token);
         if(op.code !== null) {
-          return new TokenOperator(token, input.pos - token.length, op.code);
+          return new TokenOperator(token, input.pos - token.length, op.code, op.precedence);
         }
     
         if(token.match(/(^|[ \t])([-+]?(\d+|\.\d+|\d+\.\d*))($|[^+-.])/)) {
           if(isNaN(+token)) {
-            _last_error = new LexError(token, input.pos - token.length, ERROR.BAD_NUMBER.CODE, ERROR.BAD_NUMBER.DEF);
+            _last_error = new LexError(ERROR.BAD_NUMBER.CODE, ERROR.BAD_NUMBER.MSG, input.pos - token.length, token);
             return null;
           }
           return new TokenConst(token, input.pos - token.length, CONST.NUMBER);
         }
     
         if(!token.match(/^_?([_a-zA-Z])+$/)) {
-          _last_error = new LexError(token, input.pos - token.length, ERROR.BAD_IDENTIFER.CODE, ERROR.BAD_IDENTIFER.DEF);
+          _last_error = new LexError(ERROR.BAD_IDENTIFER.CODE, ERROR.BAD_IDENTIFER.MSG, input.pos - token.length, token);
           return null;
         }
     
         return new TokenIdentifer(token, input.pos - token.length);
       };
     
+      /**
+       * [Return next token from input sequence]
+       * @return {Token} Token object
+       */
       this.getToken = function() {
         if(_back_token !== null) {
           var t = _back_token.clone();
@@ -487,23 +619,79 @@
         return _prev_token;
       };
     
+      /**
+       * [Putback token object]
+       * @param  {Token} token Token object
+       */
       this.putback = function(token) {
-        _back_token = token;
+        if(token instanceof Token === false) {
+          _last_error = new  LexError(ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.CODE, ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.MSG);
+          return false;
+        }
+        _back_token = token.clone();//token;
+        return true;
       };
     
+      /**
+       * [Return last error object]
+       * @return {LexError} LexError object
+       */
       this.getLastError = function() {
         return _last_error;
       };
     
     };
     
-    /*=require ../common.js*/
+    /*-require ../common.js*/
+    /**
+     * [ParserError]
+     * @param {number} code
+     * @param {string} msg
+     * @param {object} token
+     */
+    var ParserError = function(code, msg, token)
+    {
+      var _code  = code;
+      var _msg   = msg;
+      var _token = token;
+    
+      /**
+       * [getToken]
+       * @return {object} [description]
+       */
+      this.getToken = function() {
+        return _token;
+      };
+    
+      /**
+       * [getCode]
+       * @return {number} [description]
+       */
+      this.getCode = function() {
+        return _code;
+      };
+    
+      /**
+       * [getMessage]
+       * @return {string}
+       */
+      this.getMessage = function() {
+        return _msg;
+      };
+    
+    };
+    
+    ParserError.create = function(code, msg, token) {
+      return new ParserError(code, msg, token);
+    };
+    
     var ASTNODE = {
       EXPR:           0,
-      FUNCTION_CALL:  1,
-      CONST:          2,
-      VARIABLE:       3,
-      MEMBER_OF_OBJ:  4
+      UNARY_EXPR:     1,
+      FUNCTION_CALL:  2,
+      CONST:          3,
+      VARIABLE:       4,
+      MEMBER_OF_OBJ:  5
     };
     
     /**
@@ -632,6 +820,7 @@
         case OPERATOR.DIF: return this.left.execute(scope) - this.right.execute(scope);
         case OPERATOR.MUL: return this.left.execute(scope) * this.right.execute(scope);
         case OPERATOR.DIV: return this.left.execute(scope) / this.right.execute(scope);
+        case OPERATOR.MOD: return this.left.execute(scope) % this.right.execute(scope); 
         case OPERATOR.GT: return this.left.execute(scope) > this.right.execute(scope);
         case OPERATOR.LT: return this.left.execute(scope) < this.right.execute(scope);
         case OPERATOR.EQ: return this.left.execute(scope) == this.right.execute(scope);
@@ -642,6 +831,28 @@
         case OPERATOR.NEQ: return this.left.execute(scope) != this.right.execute(scope);
         case OPERATOR.DOT: return this.right.execute(this.left.execute(scope));
         case OPERATOR.IN: return this.in(this.left.execute(scope), this.right.execute(scope));
+      }
+      return null;
+    };
+    
+    /**
+     * @param {[type]} operator
+     * @param {[type]} operand
+     */
+    var ASTNodeUnaryExpr = function(operator, operand) {
+      ASTNode.call(this, ASTNODE.UNARY_EXPR);
+      this.op = operator;
+      this.operand = operand;
+    };
+    _extends(ASTNodeUnaryExpr, ASTNode);
+    
+    ASTNodeUnaryExpr.prototype.toString = function() {
+      return this.op + '(' + this.operand.toString() + ')';
+    };
+    
+    ASTNodeUnaryExpr.prototype.execute = function(scope) {
+      switch(this.op) {
+        case OPERATOR.NOT: return !this.operand.execute(scope);
       }
       return null;
     };
@@ -679,14 +890,18 @@
     };
     
     
-    var Parser = function() {
-    
+    var Parser = function()
+    {
       var _ast = null;
+      var _last_error = null;
     
       function _token2astnode(token) {
         switch(token.getType()) {
-          case TTOKEN.IDENTIFER: return new ASTNodeVariable(token.toString());
-          case TTOKEN.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
+          case TOKEN_TYPE.IDENTIFER: return new ASTNodeVariable(token.toString());
+          case TOKEN_TYPE.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
+          default:
+            _last_error = ParserError.create(4, "Unexpected token", token);
+          break;
         }
         return null;
       };
@@ -705,6 +920,14 @@
         return new ASTNodeExpr(operator.getOperator(), left_operand, right_operand);
       };
     
+      function _createUnaryExprNode(operators, operands) {
+        var operator = operators.pop();
+        var operand = operands.pop();
+        if(operand instanceof Token) {
+          operand = _token2astnode(operand);
+        }
+        return ;
+      };
     
       function _buildAST(chain) {
         var operands   = [];
@@ -851,9 +1074,28 @@
         return _token2astnode(token);
       };
     
-      function _processOperator(token, operators, operands) {
+      function _processOperator(token, operators, operands, lex) {
         if(operators.length === 0) {
-          operators.push(token);
+          var is_save_token = true;
+          if(token.isUnary()) {
+            var nexttok = lex.getToken();
+            if(nexttok === null) {
+              _last_error = ParserError.create(3, "Unexpected end of tokens sequence", null);
+              return null;
+            }
+            if(nexttok instanceof TokenConst) {
+              operands.push(new ASTNodeUnaryExpr(token.getOperator(), _processConst(nexttok)));
+              is_save_token = false;
+            }else if(nexttok instanceof TokenIdentifer) {
+              operands.push(new ASTNodeUnaryExpr(token.getOperator(), _processIdentifer(nexttok, lex)));
+              is_save_token = false;
+            }else {
+              lex.putback(nexttok);
+            }
+          }
+          if(is_save_token) {
+            operators.push(token);
+          }
         }else {
           var operator = operators[operators.length - 1];
           if(token.is(OPERATOR.OPEN_PAR) || token.getPrecedence() > operator.getPrecedence()) {
@@ -868,34 +1110,38 @@
               var left_operand = operands.pop();
               operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
             }
-         }else {
-           operands.push(_createBinExprNode(operators, operands));
-           operators.push(token);
-         }
+          }else {
+            operands.push(_createBinExprNode(operators, operands));
+            operators.push(token);
+          }
         }
       };
     
       function _processToken(token, lex) {
         switch(token.getType()) {
-          case TTOKEN.IDENTIFER:
+          case TOKEN_TYPE.IDENTIFER:
             return _processIdentifer(token, lex);
-          case TTOKEN.CONST:
+          case TOKEN_TYPE.CONST:
             return _processConst(token);
         }
+        _last_error = ParserError.create(2, "Unexpected token", token);
         return null;
       };
     
       function _process(token, lex, operators, operands) {
         switch(token.getType()) {
-          case TTOKEN.IDENTIFER:
+          case TOKEN_TYPE.IDENTIFER:
                operands.push(_processToken(token, lex));
             break;
-          case TTOKEN.CONST:
+          case TOKEN_TYPE.CONST:
               operands.push(_processToken(token, lex));
             break;
-          case TTOKEN.OPERATOR:
-              _processOperator(token, operators, operands);
+          case TOKEN_TYPE.OPERATOR:
+              _processOperator(token, operators, operands, lex);
             break;
+          default:
+              _last_error = ParserError.create(1, "Unexpected token", token);
+          break;
         }
       };
     
@@ -912,9 +1158,13 @@
             continue;
           }
           _process(token, lex, operators, operands);
+          if(_last_error !== null) {
+            return null;
+          }
         }
     
         if(lex.getLastError() !== null) {
+          _last_error = lex.getLastError();
           return null;
         }
     
@@ -926,6 +1176,8 @@
           return operands[0];
         }
     
+        _last_error = ParserError.create(666, "Unable to parse expression", null);
+    
         return null;
       };
     
@@ -935,7 +1187,7 @@
       };
     
       this.getLastError = function() {
-    
+        return _last_error;
       };
     
       this.getAST = function() {
@@ -943,6 +1195,8 @@
       };
     };
     
+
+    var _last_error = null;
 
     /**
       * ----------------------------------------------------------------------------------------------------------------
@@ -956,14 +1210,15 @@
         if(!parser.parse(lex)) {
           var lerr = lex.getLastError();
           if(lerr !== null) {
-            console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() +
-                        ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');
+            /*console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() +
+                        ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');*/
+            _last_error = lerr;
             return null;
           }
 
           var perr = parser.getLastError();
           if(perr !== null) {
-            // console.log
+            _last_error = perr;
             return null;
           }
         }
@@ -986,11 +1241,16 @@
        return _parse(input);
      };
 
+     var getLastError = function() {
+       return _last_error;
+     };
+
     /*******************************************************************************************************************
      * Module public interface
      */
     return {
-      parse: parse
+      parse: parse,
+      getLastError: getLastError
     };
 
   })();

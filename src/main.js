@@ -11,6 +11,8 @@
     /*=require lex/lex.js*/
     /*=require parser/parser.js*/
 
+    var _last_error = null;
+
     /**
       * ----------------------------------------------------------------------------------------------------------------
       * Private methods
@@ -23,14 +25,15 @@
         if(!parser.parse(lex)) {
           var lerr = lex.getLastError();
           if(lerr !== null) {
-            console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() +
-                        ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');
+            /*console.log('Lex-Error<' + lerr.getCode() + '>: ' + lerr.getDef() +
+                        ' in token<' + lerr.getToken() + '>' + ' at ' + (lerr.getPos() + 1) + ' pos');*/
+            _last_error = lerr;
             return null;
           }
 
           var perr = parser.getLastError();
           if(perr !== null) {
-            // console.log
+            _last_error = perr;
             return null;
           }
         }
@@ -53,11 +56,16 @@
        return _parse(input);
      };
 
+     var getLastError = function() {
+       return _last_error;
+     };
+
     /*******************************************************************************************************************
      * Module public interface
      */
     return {
-      parse: parse
+      parse: parse,
+      getLastError: getLastError
     };
 
   })();

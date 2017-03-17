@@ -10,9 +10,11 @@ var ASTNODE = {
 /**
  * @param {[type]} type [description]
  */
-var ASTNode = function(type) {
+var ASTNode = function(type)
+{
   this.type = type;
 };
+
 ASTNode.prototype.getType = function() {
   return this.type;
 };

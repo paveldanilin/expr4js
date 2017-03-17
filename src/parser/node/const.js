@@ -2,7 +2,8 @@
  * @param {[type]} val  [description]
  * @param {[type]} type [description]
  */
-var ASTNodeConst = function(val, type) {
+var ASTNodeConst = function(val, type)
+{
   ASTNode.call(this, ASTNODE.CONST);
   this.val = val;
   this.type = type;

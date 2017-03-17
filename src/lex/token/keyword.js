@@ -4,7 +4,8 @@
  * @param {number} pos   [description]
  * @param {number} code  [description]
  */
-var TokenKeyword = function(token, pos, code) {
+var TokenKeyword = function(token, pos, code)
+{
   Token.call(this, TOKEN_TYPE.KEYWORD, token, pos);
   this.code  = code;
 };

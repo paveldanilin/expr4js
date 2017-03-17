@@ -1,4 +1,5 @@
-/*=require ../common.js*/
+/*-require ../common.js*/
+/*=require error.js*/
 /*=require node/node.js*/
 /*=require node/const.js*/
 /*=require node/func.js*/
@@ -7,14 +8,18 @@
 /*=require node/uexpr.js*/
 /*=require node/member-obj.js*/
 
-var Parser = function() {
-
+var Parser = function()
+{
   var _ast = null;
+  var _last_error = null;
 
   function _token2astnode(token) {
     switch(token.getType()) {
       case TOKEN_TYPE.IDENTIFER: return new ASTNodeVariable(token.toString());
       case TOKEN_TYPE.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
+      default:
+        _last_error = ParserError.create(4, "Unexpected token", token);
+      break;
     }
     return null;
   };
@@ -39,9 +44,8 @@ var Parser = function() {
     if(operand instanceof Token) {
       operand = _token2astnode(operand);
     }
-    return new ASTNodeUnaryExpr(operator.getOperator(), operand);
+    return ;
   };
-
 
   function _buildAST(chain) {
     var operands   = [];
@@ -163,7 +167,6 @@ var Parser = function() {
     }
 
     var next = _processIdentifer(nt, lex);
-
     return new ASTNodeMemberOfObj(ident, next);
   };
 
@@ -188,9 +191,28 @@ var Parser = function() {
     return _token2astnode(token);
   };
 
-  function _processOperator(token, operators, operands) {
+  function _processOperator(token, operators, operands, lex) {
     if(operators.length === 0) {
-      operators.push(token);
+      var is_save_token = true;
+      if(token.isUnary()) {
+        var nexttok = lex.getToken();
+        if(nexttok === null) {
+          _last_error = ParserError.create(3, "Unexpected end of tokens sequence", null);
+          return null;
+        }
+        if(nexttok instanceof TokenConst) {
+          operands.push(new ASTNodeUnaryExpr(token.getOperator(), _processConst(nexttok)));
+          is_save_token = false;
+        }else if(nexttok instanceof TokenIdentifer) {
+          operands.push(new ASTNodeUnaryExpr(token.getOperator(), _processIdentifer(nexttok, lex)));
+          is_save_token = false;
+        }else {
+          lex.putback(nexttok);
+        }
+      }
+      if(is_save_token) {
+        operators.push(token);
+      }
     }else {
       var operator = operators[operators.length - 1];
       if(token.is(OPERATOR.OPEN_PAR) || token.getPrecedence() > operator.getPrecedence()) {
@@ -205,10 +227,10 @@ var Parser = function() {
           var left_operand = operands.pop();
           operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
         }
-     }else {
-       operands.push(_createBinExprNode(operators, operands));
-       operators.push(token);
-     }
+      }else {
+        operands.push(_createBinExprNode(operators, operands));
+        operators.push(token);
+      }
     }
   };
 
@@ -218,6 +240,9 @@ var Parser = function() {
         return _processIdentifer(token, lex);
       case TOKEN_TYPE.CONST:
         return _processConst(token);
+      default:
+        _last_error = ParserError.create(2, "Unexpected token", token);
+        break;
     }
     return null;
   };
@@ -231,8 +256,11 @@ var Parser = function() {
           operands.push(_processToken(token, lex));
         break;
       case TOKEN_TYPE.OPERATOR:
-          _processOperator(token, operators, operands);
+          _processOperator(token, operators, operands, lex);
         break;
+      default:
+          _last_error = ParserError.create(1, "Unexpected token", token);
+      break;
     }
   };
 
@@ -249,9 +277,13 @@ var Parser = function() {
         continue;
       }
       _process(token, lex, operators, operands);
+      if(_last_error !== null) {
+        return null;
+      }
     }
 
     if(lex.getLastError() !== null) {
+      _last_error = lex.getLastError();
       return null;
     }
 
@@ -263,6 +295,8 @@ var Parser = function() {
       return operands[0];
     }
 
+    _last_error = ParserError.create(666, "Unable to parse expression", null);
+
     return null;
   };
 
@@ -272,7 +306,7 @@ var Parser = function() {
   };
 
   this.getLastError = function() {
-
+    return _last_error;
   };
 
   this.getAST = function() {

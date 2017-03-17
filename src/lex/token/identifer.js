@@ -3,7 +3,8 @@
  * @param {string} token [description]
  * @param {number} pos   [description]
  */
-var TokenIdentifer = function(token, pos) {
+var TokenIdentifer = function(token, pos)
+{
   Token.call(this, TOKEN_TYPE.IDENTIFER, token, pos);
 };
 _extends(TokenIdentifer, Token);

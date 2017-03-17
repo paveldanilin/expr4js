@@ -1,7 +1,8 @@
 /**
  * @param {[type]} name [description]
  */
-var ASTNodeMemberOfObj = function(obj_name, next) {
+var ASTNodeMemberOfObj = function(obj_name, next)
+{
   ASTNode.call(this, ASTNODE.MEMBER_OF_OBJ);
   this.obj_name = obj_name;
   this.next = next || null;

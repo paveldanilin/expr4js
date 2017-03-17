@@ -3,7 +3,8 @@
  * @param {[type]} left_operand  [description]
  * @param {[type]} right_operand [description]
  */
-var ASTNodeExpr = function(operator, left_operand, right_operand) {
+var ASTNodeExpr = function(operator, left_operand, right_operand)
+{
   ASTNode.call(this, ASTNODE.EXPR);
   this.op = operator;
   this.left = left_operand;
@@ -32,7 +33,7 @@ ASTNodeExpr.prototype.execute = function(scope) {
     case OPERATOR.DIF: return this.left.execute(scope) - this.right.execute(scope);
     case OPERATOR.MUL: return this.left.execute(scope) * this.right.execute(scope);
     case OPERATOR.DIV: return this.left.execute(scope) / this.right.execute(scope);
-    case OPERATOR.MOD: return this.left.execute(scope) % this.right.execute(scope); 
+    case OPERATOR.MOD: return this.left.execute(scope) % this.right.execute(scope);
     case OPERATOR.GT: return this.left.execute(scope) > this.right.execute(scope);
     case OPERATOR.LT: return this.left.execute(scope) < this.right.execute(scope);
     case OPERATOR.EQ: return this.left.execute(scope) == this.right.execute(scope);

@@ -1,7 +1,8 @@
 /**
  * @param {[type]} name [description]
  */
-var ASTNodeVariable = function(name) {
+var ASTNodeVariable = function(name)
+{
   ASTNode.call(this, ASTNODE.VARIABLE);
   this.name = name;
 };

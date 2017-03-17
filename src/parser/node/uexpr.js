@@ -15,7 +15,7 @@ ASTNodeUnaryExpr.prototype.toString = function() {
 
 ASTNodeUnaryExpr.prototype.execute = function(scope) {
   switch(this.op) {
-    case OPERATOR.NOT: return (this.operand.execute(scope) === false);
+    case OPERATOR.NOT: return !this.operand.execute(scope);
   }
   return null;
 };
