@@ -39,7 +39,7 @@ var _precedence = {
   ')': 2,
   '||': 3, 'or': 3,
   '&&': 4, 'and': 4,
-  '<': 5, '>': 5, '<=': 5, '>=': 5, '==': 5, '!=': 5, '?': 5, 
+  '<': 5, '>': 5, '<=': 5, '>=': 5, '==': 5, '!=': 5, '?': 5,
   '+':  6, '-': 6,
   '*':  7, '/': 7, '%': 7,
   '.': 8
@@ -102,10 +102,16 @@ var Lex = function(input)
     return null;
   };
 
-  var _getOp = function(token, input) {
+  var _getOperator = function(token, input) {
     var op_code = null;
 
     switch(token) {
+      case "'":
+        op_code = OPERATOR.QUOTE_SINGLE;
+        break;
+      case "\"":
+        op_code = OPERATOR.QUOTE_DOUBLE;
+        break;
       case ",":
         op_code = OPERATOR.COMMA;
         break;
@@ -222,80 +228,72 @@ var Lex = function(input)
           );
   };
 
+  /**
+   * [_getStringToken]
+   * @param  {TokenOperator} quote_op
+   * @param  {[type]} input    [description]
+   * @return {[type]}          [description]
+   */
+  var _getStringToken = function(quote_op, input) {
+    var begin_pos = input.pos;
+    var str = _getString(quote_op, begin_pos, input);
+    if(str === null) {
+      _last_error = LexError.UnableToParseString(begin_pos);
+      return null;
+    }
+    return Token.create("const", {
+      token: str,
+      pos: begin_pos,
+      data_type: DATA_TYPE.STRING
+    });
+  };
+
   var _readNextToken = function(input) {
     var token = '';
+    
     for(var i = input.pos; i < input.buf_len; i++) {
       var ch = input.buf[i];
-      if(_isStopChar(ch)) {
-        if(token.length === 0) {
-
-          if(ch === '.' && _isDigit(_nextChar(input))) {
-            token += '0' + ch;
-            continue;
-          }
-          if(_prev_token === null && (ch === '-' || ch === '+') && _isDigit(_nextChar(input))) {
-            token += ch;
-            continue;
-          }
-        /*  if( _prev_token !== null &&
-              _prev_token.getType() === 'OPERATOR' &&
-              (_prev_token.getOperator() === OPERATOR.CLOSE_PAR || _prev_token.getOperator() === OPERATOR.CLOSE_PAR) &&
-              (ch === '-' || ch === '+') &&
-              _isDigit(_nextChar(input))) {
-            token += ch;
-            continue;
-          }*/
-
-          if(ch === '"') {
-            var begin_pos = input.pos;
-            var str = _getString(OPERATOR.QUOTE_DOUBLE, begin_pos, input);
-            if(str === null) {
-              _last_error = LexError.UnableToParseString(begin_pos);//new LexError(ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.MSG, begin_pos);
-              return null;
-            }
-
-            return Token.create("const", {
-              token: str,
-              pos: begin_pos,
-              data_type: DATA_TYPE.STRING
-            });//new TokenConst(str, begin_pos, DATA_TYPE.STRING);
-          }else if(ch === '\'') {
-            var begin_pos = input.pos;
-            var str = _getString(OPERATOR.QUOTE_SINGLE, begin_pos, input);
-            if(str === null) {
-              _last_error = LexError.UnableToParseString(begin_pos);//new LexError(ERROR.PARSE_STRING.CODE, ERROR.PARSE_STRING.MSG, begin_pos);
-              return null;
-            }
-
-            return Token.create("const", {
-              token: str,
-              pos: begin_pos,
-              data_type: DATA_TYPE.STRING
-            });//new TokenConst(str, begin_pos, DATA_TYPE.STRING);
-          }
-
-          var op = _getOp(ch, input);
-          if(op.code === null) {
-            _last_error = LexError.UnknownOperator(input.pos, ch);//new LexError(ERROR.UNKNOWN_OPERATOR.CODE, ERROR.UNKNOWN_OPERATOR.MSG, input.pos, ch);
-            return null;
-          }
-          input.pos++;
-
-          return Token.create("operator", {
-            token: op.token,
-            pos: input.pos,
-            op: op.code,
-            precedence: op.precedence
-          });//new TokenOperator(op.token, input.pos, op.code, op.precedence);
-        }else {
-          if((ch === '.' || _isDigit(ch)) && token.match(/([0-9])/)) {
-            token += ch;
-            continue;
-          }
-          break;
-        }
+      if(!_isStopChar(ch)) {
+        token += ch;
+        continue;
       }
-      token += ch;
+
+      if(token.length === 0) {
+        if(ch === '.' && _isDigit(_nextChar(input))) {
+          token += '0' + ch;
+          continue;
+        }
+
+        if(_prev_token === null && (ch === '-' || ch === '+') && _isDigit(_nextChar(input))) {
+          // +number, -number
+          token += ch;
+          continue;
+        }
+
+        var op = _getOperator(ch, input);
+        if(op.code === null) {
+          _last_error = LexError.UnknownOperator(input.pos, ch);
+          return null;
+        }
+
+        if(op.code == OPERATOR.QUOTE_SINGLE || op.code == OPERATOR.QUOTE_SINGLE) {
+          return _getStringToken(op.code, input);
+        }
+
+        input.pos++;
+        return Token.create("operator", {
+          token: op.token,
+          pos: input.pos,
+          op: op.code,
+          precedence: op.precedence
+        });//new TokenOperator(op.token, input.pos, op.code, op.precedence);
+      }else {
+        if((ch === '.' || _isDigit(ch)) && token.match(/([0-9])/)) {
+          token += ch;
+          continue;
+        }
+        break;
+      }
     }
 
     input.pos += token.length;
@@ -312,7 +310,7 @@ var Lex = function(input)
       });//new TokenKeyword(token, input.pos - token.length, kw_code);
     }
 
-    var op = _getOp(token);
+    var op = _getOperator(token);
     if(op.code !== null) {
       return Token.create("operator", {
         token: token,
