@@ -7,8 +7,8 @@ var rename	= require('gulp-rename');
 
 var src 					= './src/main.js';
 var dest 					= './build';
-var mod_min_name 	= 'jsexpr.min.js';
-var mod_name 			= 'jsexpr.js';
+var mod_min_name 	= 'expr4js.min.js';
+var mod_name 			= 'expr4js.js';
 
 
 gulp.task('build-clean', function() {

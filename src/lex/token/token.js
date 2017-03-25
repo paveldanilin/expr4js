@@ -92,21 +92,19 @@ Token.prototype.clone = function() {
 };
 
 Token.create = function(token_type, values) {
-  if(token_type instanceof String) {
+  // console.log('Token.create(' + token_type + ',' + JSON.stringify(values) +')');
+  
+  if(typeof token_type == 'string') {
     token_type = token_type.toLowerCase();
     switch(token_type) {
       case "identifer":
-        token_type = TOKEN_TYPE.IDENTIFER;
-      break;
+        return new TokenIdentifer(values.token, values.pos);
       case "const":
-        token_type = TOKEN_TYPE.CONST;
-      break;
+        return new TokenConst(values.token, values.pos, values.data_type);
       case "keyword":
-        token_type = TOKEN_TYPE.KEYWORD;
-      break;
+        return new TokenKeyword(values.token, values.pos, values.code);
       case "operator":
-        token_type = TOKEN_TYPE.OPERATOR;
-      break;
+        return new TokenOperator(values.token, values.pos, values.op, values.precedence);
     }
   }
   switch(token_type) {

@@ -50,7 +50,8 @@ describe("Lex#const", function() {
     });
 
     it("\"Hello, World!\" is string const (double quote)", function() {
-      var lex = new Lex("\"Hello, World!\"");
+      var s = '"Hello, World-2!"';
+      var lex = new Lex(s);
       assert.equal(lex.getToken().isConst(), true);
     });
 
@@ -108,5 +109,31 @@ describe("Lex#putback", function() {
     var lex = new Lex("1+1");
     var tok = lex.getToken();
     assert.equal(lex.putback("1"), false);
+  });
+});
+
+describe("Lex#error", function() {
+  it("PARSE_STRING='my string", function() {
+    var lex = new Lex("'my string");
+    lex.getToken(); // Trying to get = 'my string
+    assert.equal(lex.getLastError().getCode(), LEX_ERROR.PARSE_STRING.CODE);
+  });
+
+  it("BAD_NUMBER=67ii8", function() {
+    var lex = new Lex("67ii8");
+    lex.getToken(); // Trying to get number
+    assert.equal(lex.getLastError().getCode(), LEX_ERROR.BAD_NUMBER.CODE);
+  });
+
+  it("BAD_NUMBER=-o67ii8", function() {
+    var lex = new Lex("-67ii8");
+    lex.getToken(); // Trying to get number
+    assert.equal(lex.getLastError().getCode(), LEX_ERROR.BAD_NUMBER.CODE);
+  });
+
+  it("BAD_IDENTIFER=&gh", function() {
+    var lex = new Lex("&gh");
+    lex.getToken(); // Trying to get number
+    assert.equal(lex.getLastError().getCode(), LEX_ERROR.BAD_IDENTIFER.CODE);
   });
 });

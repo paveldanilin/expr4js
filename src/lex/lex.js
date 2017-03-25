@@ -102,14 +102,14 @@ var Lex = function(input)
     return null;
   };
 
-  var _getOperator = function(token, input) {
+  var _isOperator = function(token, input) {
     var op_code = null;
 
     switch(token) {
       case "'":
         op_code = OPERATOR.QUOTE_SINGLE;
         break;
-      case "\"":
+      case '"':
         op_code = OPERATOR.QUOTE_DOUBLE;
         break;
       case ",":
@@ -235,12 +235,17 @@ var Lex = function(input)
    * @return {[type]}          [description]
    */
   var _getStringToken = function(quote_op, input) {
+    //console.log('Lex._getStringToken(' + quote_op + ',' + JSON.stringify(input) + ')');
     var begin_pos = input.pos;
     var str = _getString(quote_op, begin_pos, input);
+
+    //console.log('Lex._getStringToken(): got str=<' + str + '>');
+
     if(str === null) {
       _last_error = LexError.UnableToParseString(begin_pos);
       return null;
     }
+
     return Token.create("const", {
       token: str,
       pos: begin_pos,
@@ -249,8 +254,9 @@ var Lex = function(input)
   };
 
   var _readNextToken = function(input) {
+    //console.log('Lex._readNextToken(): input.buf=' + input.buf + ', input.pos=' + input.pos);
     var token = '';
-    
+
     for(var i = input.pos; i < input.buf_len; i++) {
       var ch = input.buf[i];
       if(!_isStopChar(ch)) {
@@ -270,13 +276,15 @@ var Lex = function(input)
           continue;
         }
 
-        var op = _getOperator(ch, input);
+        var op = _isOperator(ch, input);
         if(op.code === null) {
+          //console.log('Lex._readNextToken(): caught unknown operator <' + ch + '>');
           _last_error = LexError.UnknownOperator(input.pos, ch);
           return null;
         }
 
-        if(op.code == OPERATOR.QUOTE_SINGLE || op.code == OPERATOR.QUOTE_SINGLE) {
+        if(op.code == OPERATOR.QUOTE_SINGLE || op.code == OPERATOR.QUOTE_DOUBLE) {
+          //console.log('Lex._readNextToken(): trying to get string...');
           return _getStringToken(op.code, input);
         }
 
@@ -286,7 +294,7 @@ var Lex = function(input)
           pos: input.pos,
           op: op.code,
           precedence: op.precedence
-        });//new TokenOperator(op.token, input.pos, op.code, op.precedence);
+        });
       }else {
         if((ch === '.' || _isDigit(ch)) && token.match(/([0-9])/)) {
           token += ch;
@@ -307,40 +315,46 @@ var Lex = function(input)
         token: token,
         pos: input.pos - token.length,
         code: kw_code
-      });//new TokenKeyword(token, input.pos - token.length, kw_code);
+      });
     }
 
-    var op = _getOperator(token);
+    var op = _isOperator(token);
     if(op.code !== null) {
       return Token.create("operator", {
         token: token,
         pos: input.pos - token.length,
         op: op.code,
         precedence: op.precedence
-      });//new TokenOperator(token, input.pos - token.length, op.code, op.precedence);
+      });
     }
 
     if(token.match(/(^|[ \t])([-+]?(\d+|\.\d+|\d+\.\d*))($|[^+-.])/)) {
       if(isNaN(+token)) {
-        _last_error = LexError.BadNumber(input.pos - token.length, token);//new LexError(ERROR.BAD_NUMBER.CODE, ERROR.BAD_NUMBER.MSG, input.pos - token.length, token);
+        _last_error = LexError.BadNumber(input.pos - token.length, token);
         return null;
       }
       return Token.create("const", {
         token: token,
         pos: input.pos - token.length,
         data_type: DATA_TYPE.NUMBER
-      });//new TokenConst(token, input.pos - token.length, DATA_TYPE.NUMBER);
+      });
     }
 
     if(!token.match(/^_?([_a-zA-Z])+$/)) {
-      _last_error = LexError.BadIdentifer(input.pos - token.length, token);//new LexError(ERROR.BAD_IDENTIFER.CODE, ERROR.BAD_IDENTIFER.MSG, input.pos - token.length, token);
+      _last_error = LexError.BadIdentifer(input.pos - token.length, token);
       return null;
     }
 
-    return Token.create("identifer", {
+    //console.log('Lex._readNextToken(): trying to create Token.create("identifer", ' + token + ')');
+
+    var ret = Token.create("identifer", {
       token: token,
       pos: input.pos - token.length
-    });//new TokenIdentifer(token, input.pos - token.length);
+    });
+
+    //console.log('Lex._readNextToken(): ret=' + ret);
+
+    return ret;
   };
 
   /**
