@@ -1,4 +1,3 @@
-/*-require ../common.js*/
 /*=require error.js*/
 /*=require node/node.js*/
 /*=require node/const.js*/
@@ -8,45 +7,58 @@
 /*=require node/uexpr.js*/
 /*=require node/member-obj.js*/
 
+/**
+ * Converts token sequence to the AST nodes
+ */
 var Parser = function()
 {
   var _ast = null;
   var _last_error = null;
 
+  /**
+   * [_token2astnode]
+   * @param  {object} token
+   * @return {object} ASTNodeVariable / ASTNodeConst
+   */
   function _token2astnode(token) {
     switch(token.getType()) {
       case TOKEN_TYPE.IDENTIFER: return new ASTNodeVariable(token.toString());
       case TOKEN_TYPE.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
       default:
-        _last_error = ParserError.create(4, "Unexpected token", token);
+        _last_error = ParserError.UnexpectedToken(token);
       break;
     }
     return null;
   };
 
+  /**
+   * [_createBinExprNode]
+   * @param  {Array} operators Array of operator tokens
+   * @param  {Array} operands  Array of AST nodes
+   * @return {object}          ASTNodeExpr
+   */
   function _createBinExprNode(operators, operands) {
     var operator = operators.pop();
+
     var right_operand = operands.pop();
     if(right_operand instanceof Token) {
       right_operand = _token2astnode(right_operand);
     }
+
     var left_operand = operands.pop();
     if(left_operand instanceof Token) {
       left_operand = _token2astnode(left_operand);
     }
+
     //console.log(operator.toString() + ' NODE(' + left_operand.toString() + ',' + right_operand.toString() + ')');
     return new ASTNodeExpr(operator.getOperator(), left_operand, right_operand);
   };
 
-  function _createUnaryExprNode(operators, operands) {
-    var operator = operators.pop();
-    var operand = operands.pop();
-    if(operand instanceof Token) {
-      operand = _token2astnode(operand);
-    }
-    return ;
-  };
-
+  /**
+   * [_buildAST]
+   * @param  {Array} chain Array of tokens or AST nodes
+   * @return {[type]}       [description]
+   */
   function _buildAST(chain) {
     var operands   = [];
     var operators  = [];
@@ -95,8 +107,8 @@ var Parser = function()
   function _processFunction(token, lex) {
     var fname = token.toString();
     var pos = token.getPos();
-    var args = [];
-    var buf = [];
+    var args = []; // AST nodes. Before build ASTNodeFunc - build AST noes for arguments.
+    var buf = []; // Tokens buffer
     var par_cnt = 0;
     lex.getToken(); // Skip '('
 
@@ -197,7 +209,7 @@ var Parser = function()
       if(token.isUnary()) {
         var nexttok = lex.getToken();
         if(nexttok === null) {
-          _last_error = ParserError.create(3, "Unexpected end of tokens sequence", null);
+          _last_error = ParserError.UnexpectedTokenSeq();
           return null;
         }
         if(nexttok instanceof TokenConst) {
@@ -241,7 +253,7 @@ var Parser = function()
       case TOKEN_TYPE.CONST:
         return _processConst(token);
       default:
-        _last_error = ParserError.create(2, "Unexpected token", token);
+        _last_error = ParserError.UnexpectedToken(token);
         break;
     }
     return null;
@@ -259,7 +271,7 @@ var Parser = function()
           _processOperator(token, operators, operands, lex);
         break;
       default:
-          _last_error = ParserError.create(1, "Unexpected token", token);
+          _last_error = ParserError.UnexpectedToken(token);
       break;
     }
   };
@@ -295,7 +307,7 @@ var Parser = function()
       return operands[0];
     }
 
-    _last_error = ParserError.create(666, "Unable to parse expression", null);
+    _last_error = ParserError.UnableParseExpr();
 
     return null;
   };

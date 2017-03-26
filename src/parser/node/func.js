@@ -4,7 +4,7 @@
  */
 var ASTNodeFunc = function(name, args)
 {
-  ASTNode.call(this, ASTNODE.FUNCTION_CALL);
+  ASTNode.call(this, AST_NODE_TYPE.FUNCTION_CALL);
   this.name = name;
   this.args = args;
 };

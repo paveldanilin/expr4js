@@ -3,7 +3,7 @@
  * @param {[type]} operand
  */
 var ASTNodeUnaryExpr = function(operator, operand) {
-  ASTNode.call(this, ASTNODE.UNARY_EXPR);
+  ASTNode.call(this, AST_NODE_TYPE.UNARY_EXPR);
   this.op = operator;
   this.operand = operand;
 };

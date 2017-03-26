@@ -4,7 +4,7 @@
  */
 var ASTNodeConst = function(val, type)
 {
-  ASTNode.call(this, ASTNODE.CONST);
+  ASTNode.call(this, AST_NODE_TYPE.CONST);
   this.val = val;
   this.type = type;
 };

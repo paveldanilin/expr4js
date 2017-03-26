@@ -45,7 +45,6 @@ var _precedence = {
   '.': 8
 };
 
-/*-require ../common.js*/
 /*=require error.js*/
 /*=require token/token.js*/
 /*=require token/const.js*/
@@ -377,10 +376,10 @@ var Lex = function(input)
    */
   this.putback = function(token) {
     if(token instanceof Token === false) {
-      _last_error = LexError.UnableToPutbackToken(_input.pos, token);//new  LexError(ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.CODE, ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.MSG);
+      _last_error = LexError.UnableToPutbackToken(_input.pos, token);
       return false;
     }
-    _back_token = token.clone();//token;
+    _back_token = token.clone();
     return true;
   };
 

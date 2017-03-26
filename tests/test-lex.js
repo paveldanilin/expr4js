@@ -17,6 +17,8 @@ for(var i = 0 ; i < path.length; i++) {
   vm.runInThisContext(code);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 describe("Lex#identifer", function() {
   it("'a' is identifer", function() {
     var lex = new Lex("a");

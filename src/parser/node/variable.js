@@ -3,7 +3,7 @@
  */
 var ASTNodeVariable = function(name)
 {
-  ASTNode.call(this, ASTNODE.VARIABLE);
+  ASTNode.call(this, AST_NODE_TYPE.VARIABLE);
   this.name = name;
 };
 _extends(ASTNodeVariable, ASTNode);

@@ -5,7 +5,7 @@
  */
 var ASTNodeExpr = function(operator, left_operand, right_operand)
 {
-  ASTNode.call(this, ASTNODE.EXPR);
+  ASTNode.call(this, AST_NODE_TYPE.EXPR);
   this.op = operator;
   this.left = left_operand;
   this.right = right_operand;
