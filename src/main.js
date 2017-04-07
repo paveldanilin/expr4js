@@ -4,7 +4,7 @@
 
 (function () {
 
-  var jsexpr = (function () {
+  var expr4js = (function () {
 
     /*=require common.js*/
     /*=require lex/lex.js*/
@@ -70,9 +70,9 @@
   })();
 
   if(typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = jsexpr;
+    module.exports = expr4js;
   }else {
-    window['jsexpr'] = jsexpr;
+    window['expr4js'] = expr4js;
   }
 
 })();

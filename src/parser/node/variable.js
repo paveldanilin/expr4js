@@ -13,5 +13,6 @@ ASTNodeVariable.prototype.getName = function() {
 };
 
 ASTNodeVariable.prototype.execute = function(scope) {
-  return scope[this.name] || null;
+  var val = scope[this.name] !== undefined ? scope[this.name] : null;
+  return val;
 };

@@ -6,17 +6,21 @@ var ASTNodeConst = function(val, type)
 {
   ASTNode.call(this, AST_NODE_TYPE.CONST);
   this.val = val;
-  this.type = type;
+  this.dtype = type;
+
+  if(type === DATA_TYPE.NUMBER) {
+    this.val = +this.val;
+  }
 };
 _extends(ASTNodeConst, ASTNode);
 
 ASTNodeConst.prototype.getDataType = function() {
-  return this.type;
+  return this.dtype;
 };
 
 ASTNodeConst.prototype.execute = function(scope) {
-  if(this.type === CONST.NUMBER) {
+  /*if(this.type === DATA_TYPE.NUMBER) {
     return +this.val;
-  }
+  }*/
   return this.val;
 };

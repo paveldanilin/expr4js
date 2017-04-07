@@ -265,7 +265,7 @@ var Parser = function()
            operands.push(_processToken(token, lex));
         break;
       case TOKEN_TYPE.CONST:
-          operands.push(_processToken(token, lex));
+          operands.push(_processConst(token, lex));
         break;
       case TOKEN_TYPE.OPERATOR:
           _processOperator(token, operators, operands, lex);
