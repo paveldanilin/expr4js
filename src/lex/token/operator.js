@@ -21,9 +21,29 @@ class TokenOperator extends Token
     return this.precedence;
   }
 
-  is(op_code)
+  isWhiteSpace()
   {
-    return this.op === op_code;
+    return this.op === OPERATOR.WS;
+  }
+
+  isOpenPar()
+  {
+    return this.op === OPERATOR.OPEN_PAR;
+  }
+
+  isClosePar()
+  {
+    return this.op === OPERATOR.CLOSE_PAR;
+  }
+
+  isComma()
+  {
+    return this.op === OPERATOR.COMMA;
+  }
+
+  isDot()
+  {
+    return this.op === OPERATOR.DOT;
   }
 
   isUnary()

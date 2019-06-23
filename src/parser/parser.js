@@ -79,12 +79,12 @@ const Parser = function()
           operators.push(n);
         }else {
           var operator = operators[operators.length - 1];
-          if(n.is(OPERATOR.OPEN_PAR) || n.getPrecedence() > operator.getPrecedence()) {
+          if(n.isOpenPar()|| n.getPrecedence() > operator.getPrecedence()) {
             operators.push(n);
-          }else if(n.is(OPERATOR.CLOSE_PAR)) {
+          }else if(n.isClosePar()) {
             for(;;) {
               var operator = operators.pop();
-              if(operator.is(OPERATOR.OPEN_PAR)) {
+              if(operator.isOpenPar()) {
                 break;
               }
               var right_operand = operands.pop();
@@ -128,7 +128,7 @@ const Parser = function()
       }
 
       if(t.isOperator()) {
-        if(t.is(OPERATOR.COMMA)) {
+        if(t.isComma()) {
           if(buf.length === 0) {
             // Error
             return null;
@@ -136,7 +136,7 @@ const Parser = function()
           args.push(_buildAST(buf.slice()));
           buf = [];
           continue;
-        }else if(t.is(OPERATOR.CLOSE_PAR)) {
+        }else if(t.isClosePar()) {
           if(par_cnt === 0) {
             if(args.length > 0 && buf.length === 0) {
               // Error
@@ -151,10 +151,10 @@ const Parser = function()
             buf.push(token);
             par_cnt--;
           }
-        }else if(t.is(OPERATOR.OPEN_PAR)) {
+        }else if(t.isOpenPar()) {
           buf.push(token);
           par_cnt++;
-        }else if(t.is(OPERATOR.WS)) {
+        }else if(t.isWhiteSpace()) {
           continue;
         }
         buf.push(t);
@@ -196,10 +196,10 @@ const Parser = function()
       return new ASTNodeVariable(ident);
     }
     lex.putback(nexttok);
-    if(nexttok.isOperator() && nexttok.is(OPERATOR.OPEN_PAR)) {
+    if(nexttok.isOperator() && nexttok.isOpenPar()) {
       return _processFunction(token, lex);
     }
-    if(nexttok.isOperator() && nexttok.is(OPERATOR.DOT)) {
+    if(nexttok.isOperator() && nexttok.isDot()) {
       return _processMemberOf(token, lex);
     }
     return new ASTNodeVariable(ident);
@@ -209,15 +209,22 @@ const Parser = function()
     return _token2astnode(token);
   };
 
-  function _processOperator(token, operators, operands, lex) {
+  function _processOperator(token, operators, operands, lex)
+  {
+
     if(operators.length === 0) {
+
       var is_save_token = true;
+
       if(token.isUnary()) {
+
         var nexttok = lex.getToken();
+
         if(nexttok === null) {
           _last_error = ParserError.UnexpectedTokenSeq();
           return null;
         }
+
         if(nexttok instanceof TokenConst) {
           operands.push(new ASTNodeUnaryExpr(token.getOperator(), _processConst(nexttok)));
           is_save_token = false;
@@ -228,17 +235,20 @@ const Parser = function()
           lex.putback(nexttok);
         }
       }
+
       if(is_save_token) {
         operators.push(token);
       }
+
     }else {
+
       var operator = operators[operators.length - 1];
-      if(token.is(OPERATOR.OPEN_PAR) || token.getPrecedence() > operator.getPrecedence()) {
+      if(token.isOpenPar() || token.getPrecedence() > operator.getPrecedence()) {
         operators.push(token);
-      }else if(token.is(OPERATOR.CLOSE_PAR)) {
+      }else if(token.isClosePar()) {
         for(;;) {
           var operator = operators.pop();
-          if(operator.is(OPERATOR.OPEN_PAR)) {
+          if(operator.isOpenPar()) {
             break;
           }
           var right_operand = operands.pop();
@@ -296,9 +306,7 @@ const Parser = function()
         break;
       }
 
-      if(token.isOperator() && token.is(OPERATOR.WS)) {
-        //console.log(token.toString());
-        operators.push(token);
+      if(token.isOperator() && token.isWhiteSpace()) {
         continue;
       }
 

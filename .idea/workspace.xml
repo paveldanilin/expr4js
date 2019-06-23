@@ -2,43 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7206fc14-f9e8-432a-a031-58c03ae32624" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/jest.config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/expr4.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lex/datatype.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lex/errorcodes.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lex/factory.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lex/operator.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lex/token/type.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser/node/type.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/parser.test.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/expr4js.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/jsexpr.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/jsexpr.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gulpfile.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/common.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/error.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/error.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/lex.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/lex.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/token/const.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token/const.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/token/identifer.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token/identifer.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/token/keyword.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token/keyword.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/expr4.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lex/token/operator.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token/operator.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/token/token.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token/token.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/error.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/error.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/node/const.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/node/const.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/node/expr.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/node/expr.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/node/func.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/node/func.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/node/member-obj.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/node/member-obj.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/node/node.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/node/node.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/node/uexpr.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/node/uexpr.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/node/variable.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/node/variable.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test-lex.js" beforeDir="false" afterPath="$PROJECT_DIR$/tests/lex.test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test-op-equal.js" beforeDir="false" afterPath="$PROJECT_DIR$/tests/equal.test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test-parser.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/test.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -51,8 +19,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/parser/parser.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="159">
-              <caret line="57" column="106" selection-start-line="57" selection-start-column="100" selection-end-line="57" selection-end-column="106" />
+            <state relative-caret-position="249">
+              <caret line="242" column="11" selection-start-line="242" selection-start-column="11" selection-end-line="242" selection-end-column="11" />
               <folding>
                 <element signature="e#0#34#0" expanded="true" />
               </folding>
@@ -61,22 +29,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lex/lex.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="159">
-              <caret line="252" column="67" selection-start-line="252" selection-start-column="61" selection-end-line="252" selection-end-column="67" />
-              <folding>
-                <element signature="e#0#31#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lex/token/operator.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="145">
-              <caret line="10" column="17" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
+            <state relative-caret-position="40">
+              <caret line="21" column="3" selection-start-line="21" selection-start-column="3" selection-end-line="21" selection-end-column="3" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
               </folding>
@@ -85,22 +41,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lex/token/type.js">
+        <entry file="file://$PROJECT_DIR$/src/lex/operator.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="3" selection-start-line="3" selection-end-line="4" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/expr4.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="155">
-              <caret line="31" column="21" selection-start-line="31" selection-start-column="21" selection-end-line="31" selection-end-column="21" />
-              <folding>
-                <element signature="e#0#28#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="225">
+              <caret line="15" column="12" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="12" />
             </state>
           </provider>
         </entry>
@@ -108,20 +52,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="19" column="11" selection-start-line="19" selection-start-column="11" selection-end-line="19" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/parser/node/expr.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="15" column="3" lean-forward="true" selection-start-line="15" selection-start-column="3" selection-end-line="15" selection-end-column="3" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="315">
+              <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -155,6 +87,7 @@
       <find>operator</find>
       <find>ASTNodeExpr</find>
       <find>string</find>
+      <find>console.lo</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/src/parser</dir>
@@ -254,6 +187,11 @@
             <path>
               <item name="expr4js" type="b2602c69:ProjectViewProjectNode" />
               <item name="expr4js" type="462c0819:PsiDirectoryNode" />
+              <item name="dist" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="expr4js" type="b2602c69:ProjectViewProjectNode" />
+              <item name="expr4js" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -261,6 +199,13 @@
               <item name="expr4js" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="lex" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="expr4js" type="b2602c69:ProjectViewProjectNode" />
+              <item name="expr4js" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lex" type="462c0819:PsiDirectoryNode" />
+              <item name="token" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="expr4js" type="b2602c69:ProjectViewProjectNode" />
@@ -288,6 +233,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="11.13.0" />
     <property name="nodejs.mocha.mocha_node_package_dir" value="$PROJECT_DIR$/node_modules/mocha" />
@@ -363,7 +309,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1561261080059</updated>
-      <workItem from="1561261081267" duration="23351000" />
+      <workItem from="1561261081267" duration="24753000" />
     </task>
     <servers />
   </component>
@@ -385,7 +331,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="23351000" />
+    <option name="totallyTimeSpent" value="24753000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1920" y="23" width="1920" height="974" extended-state="0" />
@@ -659,30 +605,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/expr4.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="31" column="21" selection-start-line="31" selection-start-column="21" selection-end-line="31" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#28#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/parser/node/type.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" selection-start-line="4" selection-end-line="4" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lex/operator.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="6" selection-start-column="6" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/lex/token/type.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
@@ -712,36 +634,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lex/token/operator.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="145">
-          <caret line="10" column="17" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#28#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/parser/parser.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="159">
-          <caret line="57" column="106" selection-start-line="57" selection-start-column="100" selection-end-line="57" selection-end-column="106" />
-          <folding>
-            <element signature="e#0#34#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lex/lex.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="159">
-          <caret line="252" column="67" selection-start-line="252" selection-start-column="61" selection-end-line="252" selection-end-column="67" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/parser/node/expr.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
@@ -752,10 +644,64 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/parser/node/type.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" selection-start-line="4" selection-end-line="4" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/expr4.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="80">
+          <caret line="14" column="19" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lex/lex.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="284">
+          <caret line="163" column="14" selection-start-line="163" selection-start-column="14" selection-end-line="163" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lex/operator.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="12" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lex/token/operator.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="40">
+          <caret line="21" column="3" selection-start-line="21" selection-start-column="3" selection-end-line="21" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/parser/parser.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="249">
+          <caret line="242" column="11" selection-start-line="242" selection-start-column="11" selection-end-line="242" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="19" column="11" selection-start-line="19" selection-start-column="11" selection-end-line="19" selection-end-column="11" />
+        <state relative-caret-position="315">
+          <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
         </state>
       </provider>
     </entry>
