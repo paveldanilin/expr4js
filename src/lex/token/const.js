@@ -1,28 +1,23 @@
-/**
- * [TokenConst]
- * @param {string} token [description]
- * @param {number} pos   [description]
- * @param {number} dtype Value of CONST global object
- */
-var TokenConst = function(token, pos, dtype)
+import Token from './token';
+import TOKEN_TYPE from './type';
+
+class TokenConst extends Token
 {
-  Token.call(this, TOKEN_TYPE.CONST, token, pos);
-  this.dtype = dtype;
-};
-_extends(TokenConst, Token);
+  constructor(token, pos, dtype)
+  {
+    super(TOKEN_TYPE.CONST, token, pos);
+    this.dtype = dtype;
+  }
 
-/**
- * [getDataType]
- * @return {number} [description]
- */
-TokenConst.prototype.getDataType = function() {
-  return this.dtype;
-};
+  getDataType()
+  {
+    return this.dtype;
+  }
 
-/**
- * [clone]
- * @return {TokenConst} [description]
- */
-TokenConst.prototype.clone = function() {
-  return new TokenConst(this.toString(), this.getPos(), this.getDataType());
-};
+  clone()
+  {
+    return new TokenConst(this.toString(), this.getPos(), this.getDataType());
+  }
+}
+
+export default TokenConst;

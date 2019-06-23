@@ -1,26 +1,28 @@
-/**
- * @param {[type]} val  [description]
- * @param {[type]} type [description]
- */
-var ASTNodeConst = function(val, type)
+import ASTNode from './node';
+import AST_NODE_TYPE from './type';
+import DATA_TYPE from '../../lex/datatype';
+
+class ASTNodeConst extends ASTNode
 {
-  ASTNode.call(this, AST_NODE_TYPE.CONST);
-  this.val = val;
-  this.dtype = type;
+  constructor(val, type)
+  {
+    super(AST_NODE_TYPE.CONST);
+    this.val = val;
+    this.dtype = type;
 
-  if(type === DATA_TYPE.NUMBER) {
-    this.val = +this.val;
+    if(type === DATA_TYPE.NUMBER) {
+      this.val = +this.val;
+    }
   }
-};
-_extends(ASTNodeConst, ASTNode);
 
-ASTNodeConst.prototype.getDataType = function() {
-  return this.dtype;
-};
+  getDataType() {
+    return this.dtype;
+  }
 
-ASTNodeConst.prototype.execute = function(scope) {
-  /*if(this.type === DATA_TYPE.NUMBER) {
-    return +this.val;
-  }*/
-  return this.val;
-};
+  execute(scope)
+  {
+    return this.val;
+  }
+}
+
+export default ASTNodeConst;

@@ -1,40 +1,14 @@
-var OPERATOR = {
-  GT:         100, // >
-  LT:         101, // <
-  GET:        102, // >=
-  LET:        103, // <=
-  EQ:         104, // ==
-  NEQ:        105, // !=
-  DOT:        106, // .
-  WS:         107, // ' '
-  AND:        108, // and
-  OR:         109, // or
-  DIV:        110, // /
-  DIF:        111, // -
-  MUL:        112, // *
-  SUM:        113, // +
-  OPEN_PAR:   114, // (
-  CLOSE_PAR:  115, // )
-  IN:         116, // ? (const) ? (object/const[string])
-  COMMA:      117,
-  MOD:        118, // %
-  NOT:        119, // !
-  QUOTE_SINGLE: 120, // '
-  QUOTE_DOUBLE: 121, // "
-  INC:         122, // ++
-  DEC:         123 // --
-};
+import LexError from './error';
+import Token from './token/token';
+import OPERATOR from './operator';
+import DATA_TYPE from './datatype';
+import tokenFactory from './factory';
 
-var DATA_TYPE = {
-  STRING: 1,
-  NUMBER: 2
-};
-
-var _keywords = {
+const _keywords = {
   'in': 1
 };
-var _stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-', '%'];
-var _precedence = {
+const _stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-', '%'];
+const _precedence = {
   '(': 1,
   ')': 2,
   '||': 3, 'or': 3,
@@ -45,14 +19,7 @@ var _precedence = {
   '.': 8
 };
 
-/*=require error.js*/
-/*=require token/token.js*/
-/*=require token/const.js*/
-/*=require token/identifer.js*/
-/*=require token/keyword.js*/
-/*=require token/operator.js*/
-
-var Lex = function(input)
+const Lex = function(input)
 {
   if(typeof input === 'string') {
     var expr = input;
@@ -245,7 +212,7 @@ var Lex = function(input)
       return null;
     }
 
-    return Token.create("const", {
+    return tokenFactory("const", {
       token: str,
       pos: begin_pos,
       data_type: DATA_TYPE.STRING
@@ -282,13 +249,13 @@ var Lex = function(input)
           return null;
         }
 
-        if(op.code == OPERATOR.QUOTE_SINGLE || op.code == OPERATOR.QUOTE_DOUBLE) {
+        if(op.code === OPERATOR.QUOTE_SINGLE || op.code === OPERATOR.QUOTE_DOUBLE) {
           //console.log('Lex._readNextToken(): trying to get string...');
           return _getStringToken(op.code, input);
         }
 
         input.pos++;
-        return Token.create("operator", {
+        return tokenFactory("operator", {
           token: op.token,
           pos: input.pos,
           op: op.code,
@@ -310,7 +277,7 @@ var Lex = function(input)
 
     var kw_code = _isKeyword(token);
     if(kw_code !== null) {
-      return Token.create("keyword", {
+      return tokenFactory("keyword", {
         token: token,
         pos: input.pos - token.length,
         code: kw_code
@@ -319,7 +286,7 @@ var Lex = function(input)
 
     var op = _isOperator(token);
     if(op.code !== null) {
-      return Token.create("operator", {
+      return tokenFactory("operator", {
         token: token,
         pos: input.pos - token.length,
         op: op.code,
@@ -332,7 +299,7 @@ var Lex = function(input)
         _last_error = LexError.BadNumber(input.pos - token.length, token);
         return null;
       }
-      return Token.create("const", {
+      return tokenFactory("const", {
         token: token,
         pos: input.pos - token.length,
         data_type: DATA_TYPE.NUMBER
@@ -346,7 +313,7 @@ var Lex = function(input)
 
     //console.log('Lex._readNextToken(): trying to create Token.create("identifer", ' + token + ')');
 
-    var ret = Token.create("identifer", {
+    var ret = tokenFactory("identifer", {
       token: token,
       pos: input.pos - token.length
     });
@@ -392,3 +359,6 @@ var Lex = function(input)
   };
 
 };
+
+
+export default Lex;

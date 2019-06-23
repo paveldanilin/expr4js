@@ -2,10 +2,24 @@
   "name": "expr4js",
   "version": "0.0.1",
   "description": "JavaScript module for expression parsing and evaluation",
-  "main": "",
+  "main": "dist/expr4.js",
   "scripts": {
-    "test": "mocha tests/*.js",
-    "test-op-equal": "mocha tests/test-op-equal.js"
+    "test": "jest --config jest.config.json --forceExit",
+    "webpack": "webpack --config webpack.config.js"
   },
-  "author": "Pavel.Danilin"
+  "author": "Pavel.Danilin",
+  "devDependencies": {
+    "jest": "^24.8.0",
+    "babel-jest": "^24.8.0",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "webpack": "4.35.0",
+    "webpack-cli": "^3.3.4",
+    "babel-loader": "^8.0.6"
+  },
+  "babel": {
+    "presets": [
+      "@babel/env"
+    ]
+  }
 }

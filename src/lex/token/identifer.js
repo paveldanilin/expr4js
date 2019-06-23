@@ -1,18 +1,17 @@
-/**
- * [TokenIdentifer]
- * @param {string} token [description]
- * @param {number} pos   [description]
- */
-var TokenIdentifer = function(token, pos)
-{
-  Token.call(this, TOKEN_TYPE.IDENTIFER, token, pos);
-};
-_extends(TokenIdentifer, Token);
+import Token from './token';
+import TOKEN_TYPE from './type';
 
-/**
- * [clone]
- * @return {[TokenIdentifer} [description]
- */
-TokenIdentifer.prototype.clone = function() {
-  return new TokenIdentifer(this.toString(), this.getPos());
-};
+class TokenIdentifer extends Token
+{
+  constructor(token, pos)
+  {
+    super(TOKEN_TYPE.IDENTIFER, token, pos);
+  }
+
+  clone()
+  {
+    return new TokenIdentifer(this.toString(), this.getPos());
+  }
+}
+
+export default TokenIdentifer;

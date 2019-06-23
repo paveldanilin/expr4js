@@ -1,54 +1,44 @@
-/**
- * [TokenOperator]
- * @param {string} token      [description]
- * @param {number} pos        [description]
- * @param {number} op         [description]
- * @param {number} precedence [description]
- */
-var TokenOperator = function(token, pos, op, precedence)
+import Token from './token';
+import TOKEN_TYPE from './type';
+import OPERATOR from '../operator';
+
+class TokenOperator extends Token
 {
-  Token.call(this, TOKEN_TYPE.OPERATOR, token, pos);
-  this.op = op;
-  this.precedence = precedence;
-};
-_extends(TokenOperator, Token);
-
-/**
- * [getOperator]
- * @return {number} [description]
- */
-TokenOperator.prototype.getOperator = function() {
-  return this.op;
-};
-
-/**
- * [getPrecedence]
- * @return {number} [description]
- */
-TokenOperator.prototype.getPrecedence = function() {
-  return this.precedence;
-};
-
-/**
- * [is]
- * @param  {number}  op_code [description]
- * @return {Boolean}         [description]
- */
-TokenOperator.prototype.is = function(op_code) {
-  return this.op === op_code;
-};
-
-TokenOperator.prototype.isUnary = function() {
-  switch(this.op) {
-    case OPERATOR.NOT: return true;
+  constructor(token, pos, op, precedence)
+  {
+    super(TOKEN_TYPE.OPERATOR, token, pos);
+    this.precedence = precedence;
+    this.op = op;
   }
-  return false;
-};
 
-/**
- * [clone]
- * @return {TokenOperator} [description]
- */
-TokenOperator.prototype.clone = function() {
-  return new TokenOperator(this.toString(), this.getPos(), this.getOperator(), this.getPrecedence());
-};
+  getOperator()
+  {
+    return this.op;
+  }
+
+  getPrecedence()
+  {
+    return this.precedence;
+  }
+
+  is(op_code)
+  {
+    return this.op === op_code;
+  }
+
+  isUnary()
+  {
+    switch(this.op) {
+      case OPERATOR.NOT: return true;
+    }
+    return false;
+  }
+
+  clone()
+  {
+    return new TokenOperator(this.toString(), this.getPos(), this.getOperator(), this.getPrecedence());
+  }
+}
+
+
+export default TokenOperator;

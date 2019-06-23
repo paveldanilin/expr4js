@@ -1,28 +1,23 @@
-/**
- * [TokenKeyword]
- * @param {string} token [description]
- * @param {number} pos   [description]
- * @param {number} code  [description]
- */
-var TokenKeyword = function(token, pos, code)
+import Token from './token';
+import TOKEN_TYPE from './type';
+
+class TokenKeyword extends Token
 {
-  Token.call(this, TOKEN_TYPE.KEYWORD, token, pos);
-  this.code  = code;
-};
-_extends(TokenKeyword, Token);
+  constructor(token, pos, code)
+  {
+    super(TOKEN_TYPE.KEYWORDS, token, pos);
+    this.code = code;
+  }
 
-/**
- * [getCode]
- * @return {number} [description]
- */
-TokenKeyword.prototype.getCode = function() {
-  return this.code;
-};
+  getCode()
+  {
+    return this.code;
+  }
 
-/**
- * [clone]
- * @return {TokenKeyword} [description]
- */
-TokenKeyword.prototype.clone = function() {
-  return new TokenKeyword(this.toString(), this.getPos(), this.getCode());
-};
+  clone()
+  {
+    return new TokenKeyword(this.toString(), this.getPos(), this.getCode());
+  }
+}
+
+export default TokenKeyword;

@@ -1,4 +1,4 @@
-var PARSER_ERROR = {
+const PARSER_ERROR = {
   UNEXPECTED_TOKEN: {
     MSG: 'Unexpected token',
     CODE: 2000
@@ -19,11 +19,11 @@ var PARSER_ERROR = {
  * @param {string} msg
  * @param {object} token
  */
-var ParserError = function(code, msg, token)
+const ParserError = function(code, msg, token)
 {
-  var _code  = code;
-  var _msg   = msg;
-  var _token = token;
+  const _code  = code;
+  const _msg   = msg;
+  const _token = token;
 
   /**
    * [getToken]
@@ -66,3 +66,5 @@ ParserError.UnexpectedTokenSeq = function() {
 ParserError.UnableParseExpr = function() {
   return ParserError.create(PARSER_ERROR.UNABLE_PARSE_EXPR.CODE, PARSER_ERROR.UNABLE_PARSE_EXPR.MSG, null);
 };
+
+export default ParserError;

@@ -1,19 +1,24 @@
-/*=require error.js*/
-/*=require node/node.js*/
-/*=require node/const.js*/
-/*=require node/func.js*/
-/*=require node/variable.js*/
-/*=require node/expr.js*/
-/*=require node/uexpr.js*/
-/*=require node/member-obj.js*/
+import ParserError from './error';
+import ASTNode from './node/node';
+import ASTNodeConst from './node/const';
+import ASTNodeExpr from './node/expr';
+import ASTNodeFunc from './node/func';
+import ASTNodeMemberOfObj from './node/member-obj';
+import ASTNodeUnaryExpr from './node/uexpr';
+import ASTNodeVariable from './node/variable';
+import Token from '../lex/token/token';
+import TokenConst from '../lex/token/const';
+import TokenIdentifer from '../lex/token/identifer';
+import TOKEN_TYPE from '../lex/token/type';
+import OPERATOR from '../lex/token/operator';
 
 /**
  * Converts token sequence to the AST nodes
  */
-var Parser = function()
+const Parser = function()
 {
-  var _ast = null;
-  var _last_error = null;
+  let _ast = null;
+  let _last_error = null;
 
   /**
    * [_token2astnode]
@@ -38,19 +43,20 @@ var Parser = function()
    * @return {object}          ASTNodeExpr
    */
   function _createBinExprNode(operators, operands) {
-    var operator = operators.pop();
+    const operator = operators.pop();
+    let right_operand = operands.pop();
+    let left_operand = operands.pop();
 
-    var right_operand = operands.pop();
     if(right_operand instanceof Token) {
       right_operand = _token2astnode(right_operand);
     }
 
-    var left_operand = operands.pop();
     if(left_operand instanceof Token) {
       left_operand = _token2astnode(left_operand);
     }
 
-    //console.log(operator.toString() + ' NODE(' + left_operand.toString() + ',' + right_operand.toString() + ')');
+    // console.log(operator.toString() + ' NODE(' + left_operand.toString() + ',' + right_operand.toString() + ')');
+
     return new ASTNodeExpr(operator.getOperator(), left_operand, right_operand);
   };
 
@@ -60,11 +66,11 @@ var Parser = function()
    * @return {[type]}       [description]
    */
   function _buildAST(chain) {
-    var operands   = [];
-    var operators  = [];
-    var len = chain.length;
+    let operands   = [];
+    let operators  = [];
+    const len = chain.length;
 
-    for(var i = 0 ; i < len ; i++) {
+    for(let i = 0 ; i < len ; i++) {
       var n = chain[i];
       if(n instanceof ASTNode) {
         operands.push(n);
@@ -259,7 +265,10 @@ var Parser = function()
     return null;
   };
 
-  function _process(token, lex, operators, operands) {
+  function _process(token, lex, operators, operands)
+  {
+    // console.log('Process ' + token.getType());
+
     switch(token.getType()) {
       case TOKEN_TYPE.IDENTIFER:
            operands.push(_processToken(token, lex));
@@ -281,14 +290,20 @@ var Parser = function()
     var operators  = [];
 
     for(;;) {
-      var token = lex.getToken();
+      const token = lex.getToken();
+
       if(token === null) {
         break;
       }
+
       if(token.isOperator() && token.is(OPERATOR.WS)) {
+        //console.log(token.toString());
+        operators.push(token);
         continue;
       }
+
       _process(token, lex, operators, operands);
+
       if(_last_error !== null) {
         return null;
       }
@@ -299,7 +314,7 @@ var Parser = function()
       return null;
     }
 
-    while(operators.length != 0) {
+    while(operators.length !== 0) {
       operands.push(_createBinExprNode(operators, operands));
     }
 
@@ -325,3 +340,6 @@ var Parser = function()
     return _ast;
   };
 };
+
+
+export default Parser;

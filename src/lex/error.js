@@ -1,93 +1,63 @@
-var LEX_ERROR = {
-  PARSE_STRING     : {
-    CODE: 1000,
-    MSG: 'Unable to parse string'
-  },
-  UNKNOWN_OPERATOR : {
-    CODE: 1001,
-    MSG: 'Unknown operator'
-  },
-  BAD_NUMBER       : {
-    CODE: 1002,
-    MSG: 'Bad number format'
-  },
-  BAD_IDENTIFER    : {
-    CODE: 1003,
-    MSG: 'Bad identifer, identifer allowed cahrs [_a-zA-Z]'
-  },
-  UNABLE_TO_PUTBACK_NON_TOKEN: {
-    CODE: 1004,
-    MSG: 'Unable to putback non token object'
-  }
-};
+import LEX_ERROR from './errorcodes';
 
-/**
- * [LexError]
- * @param {number} code
- * @param {string} msg
- * @param {number} pos
- * @param {string} token
- */
-var LexError = function(code, msg, pos, token)
+class LexError
 {
-  var _code  = code !== undefined ? code : null;
-  var _msg   = msg !== undefined ? msg : null;
-  var _pos   = pos !== undefined ? pos : null;
-  var _token = token !== undefined ? token : null;
+  constructor(code, msg, pos, token) {
+    this.code = code !== undefined ? code : null;
+    this.msg = msg !== undefined ? msg : null;
+    this.pos = pos !== undefined ? pos : null;
+    this.token = token !== undefined ? token : null;
+  }
 
-  /**
-   * [getToken]
-   * @return {string} [description]
-   */
-  this.getToken = function() {
-    return _token;
-  };
+  getToken()
+  {
+    return this.token;
+  }
 
-  /**
-   * [getPos]
-   * @return {number} [description]
-   */
-  this.getPos = function() {
-    return _pos;
-  };
+  getPos()
+  {
+    return this.pos;
+  }
 
-  /**
-   * [getCode]
-   * @return {number} [description]
-   */
-  this.getCode = function() {
-    return _code;
-  };
+  getCode()
+  {
+    return this.code;
+  }
 
-  /**
-   * [getMessage]
-   * @return {string}
-   */
-  this.getMessage = function() {
-    return _msg;
-  };
-};
+  getMessage()
+  {
+    return this.msg;
+  }
 
-LexError.create = function(code, msg, pos, token) {
-  return new LexError(code, msg, pos, token);
-};
+  static create(code, msg, pos, token)
+  {
+    return new LexError(code, msg, pos, token);
+  }
 
-LexError.UnableToParseString = function(pos) {
-  return LexError.create(LEX_ERROR.PARSE_STRING.CODE, LEX_ERROR.PARSE_STRING.MSG, pos);
-};
+  static UnableToParseString(pos)
+  {
+    return this.create(LEX_ERROR.PARSE_STRING.CODE, LEX_ERROR.PARSE_STRING.MSG, pos);
+  }
 
-LexError.UnknownOperator = function(pos, token) {
-  return LexError.create(LEX_ERROR.UNKNOWN_OPERATOR.CODE, LEX_ERROR.UNKNOWN_OPERATOR.MSG, pos, token);
-};
+  static UnknownOperator(pos, token)
+  {
+    return this.create(LEX_ERROR.UNKNOWN_OPERATOR.CODE, LEX_ERROR.UNKNOWN_OPERATOR.MSG, pos, token);
+  }
 
-LexError.BadNumber = function(pos, token) {
-  return LexError.create(LEX_ERROR.BAD_NUMBER.CODE, LEX_ERROR.BAD_NUMBER.MSG, pos, token);
-};
+  static BadNumber(pos, token)
+  {
+    return this.create(LEX_ERROR.BAD_NUMBER.CODE, LEX_ERROR.BAD_NUMBER.MSG, pos, token);
+  }
 
-LexError.BadIdentifer = function(pos, token) {
-  return LexError.create(LEX_ERROR.BAD_IDENTIFER.CODE, LEX_ERROR.BAD_IDENTIFER.MSG, pos, token);
-};
+  static BadIdentifer(pos, token)
+  {
+    return this.create(LEX_ERROR.BAD_IDENTIFER.CODE, LEX_ERROR.BAD_IDENTIFER.MSG, pos, token);
+  }
 
-LexError.UnableToPutbackToken = function(pos, token) {
-  return LexError.create(LEX_ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.CODE, LEX_ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.MSG, pos, token);
-};
+  static UnableToPutbackToken(pos, token)
+  {
+    return this.create(LEX_ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.CODE, LEX_ERROR.UNABLE_TO_PUTBACK_NON_TOKEN.MSG, pos, token);
+  }
+}
+
+export default LexError;
