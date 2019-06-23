@@ -1,27 +1,18 @@
-const lib = require('./dist/expr4.js').default;
+const expr4js = require('./dist/expr4.js').default;
 
-const a = new lib();
-/*
-const expression = a.parse('1==1');
+const exprParser = new expr4js();
 
-if ( expression === null ) {
-    console.log(a.getLastError().getMessage());
+const r = exprParser.parse('car.color == "green"');
+
+if (r === null) {
+    console.log(exprParser.getLastError().getMessage());
 } else {
-    console.log(expression.execute());
+
+    const out = r.execute({
+        car: {
+            color: 'green'
+        }
+    });
+
+    console.log(out);
 }
-*/
-
-const f = a.parse('car.color == "red"');
-
-if (f === null) {
-    console.log(a.getLastError().getMessage());
-}
-
-const r = f.execute({
-    car: {
-        color: 'green'
-    }
-});
-
-console.log(r);
-
