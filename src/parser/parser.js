@@ -1,74 +1,73 @@
-/*=require ../common.js*/
-/*=require node/node.js*/
-/*=require node/const.js*/
-/*=require node/func.js*/
-/*=require node/variable.js*/
-/*=require node/expr.js*/
-/*=require node/member-obj.js*/
+import ParserError from './error';
+import ASTNode from './node/node';
+import ASTNodeConst from './node/const';
+import ASTNodeExpr from './node/expr';
+import ASTNodeFunc from './node/func';
+import ASTNodeMemberOfObj from './node/member-obj';
+import ASTNodeUnaryExpr from './node/uexpr';
+import ASTNodeVariable from './node/variable';
+import Token from '../lex/token/token';
+import TokenConst from '../lex/token/const';
+import TokenIdentifer from '../lex/token/identifer';
+import TOKEN_TYPE from '../lex/token/type';
+//import OPERATOR from '../lex/token/operator';
 
-var Parser = function() {
+export default class Parser {
 
-  var _ast = null;
+  constructor() {
+    this._ast = null;
+    this._last_error = null;
+  }
 
-  function _token2astnode(token) {
+   _token2astnode(token) {
     switch(token.getType()) {
-      case TTOKEN.IDENTIFER: return new ASTNodeVariable(token.toString());
-      case TTOKEN.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
+      case TOKEN_TYPE.IDENTIFER: return new ASTNodeVariable(token.toString());
+      case TOKEN_TYPE.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
+      default:
+        this._last_error = ParserError.UnexpectedToken(token);
+      break;
     }
     return null;
-  };
+  }
 
-  function _createBinExprNode(operators, operands) {
-    var operator = operators.pop();
-    var right_operand = operands.pop();
+   _createBinExprNode(operators, operands) {
+    const operator = operators.pop();
+
+    let right_operand = operands.pop();
+    let left_operand = operands.pop();
+
     if(right_operand instanceof Token) {
-      right_operand = _token2astnode(right_operand);
+      right_operand = this._token2astnode(right_operand);
     }
-    var left_operand = operands.pop();
+
     if(left_operand instanceof Token) {
-      left_operand = _token2astnode(left_operand);
+      left_operand = this._token2astnode(left_operand);
     }
-    //console.log(operator.toString() + ' NODE(' + left_operand.toString() + ',' + right_operand.toString() + ')');
+
     return new ASTNodeExpr(operator.getOperator(), left_operand, right_operand);
-  };
+  }
 
+  _buildAST(chain) {
+    let operands   = [];
+    let operators  = [];
+    const len = chain.length;
 
-  function _buildAST(chain) {
-    var operands   = [];
-    var operators  = [];
-    var len = chain.length;
+    for(let i = 0 ; i < len ; i++) {
+      const n = chain[i];
 
-    for(var i = 0 ; i < len ; i++) {
-      var n = chain[i];
       if(n instanceof ASTNode) {
         operands.push(n);
       }else {
         if(operators.length === 0) {
           operators.push(n);
         }else {
-          var operator = operators[operators.length - 1];
-          if(n.is(OPERATOR.OPEN_PAR) || n.getPrecedence() > operator.getPrecedence()) {
-            operators.push(n);
-          }else if(n.is(OPERATOR.CLOSE_PAR)) {
-            for(;;) {
-              var operator = operators.pop();
-              if(operator.is(OPERATOR.OPEN_PAR)) {
-                break;
-              }
-              var right_operand = operands.pop();
-              var left_operand = operands.pop();
-              operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
-            }
-         }else {
-           operands.push(_createBinExprNode(operators, operands));
-           operators.push(n);
-         }
+          this._processOperators(n, operators, operands);
         }
       }
     }
 
-    while(operators.length != 0) {
-      operands.push(_createBinExprNode(operators, operands));
+    while(operators.length !== 0) {
+      operands.push(this._createBinExprNode(operators, operands));
     }
 
     if(operands.length === 1) {
@@ -76,42 +75,40 @@ var Parser = function() {
     }
 
     return null;
-  };
+  }
 
-  function _processFunction(token, lex) {
-    var fname = token.toString();
-    var pos = token.getPos();
-    var args = [];
-    var buf = [];
-    var par_cnt = 0;
+  _processFunction(token, lex) {
+
+    const args = []; // AST nodes. Before build ASTNodeFunc - build AST noes for arguments.
+    let buf = []; // Tokens buffer
+    let par_cnt = 0;
     lex.getToken(); // Skip '('
 
-    //console.log('BEGIN function <' + fname + '> pos:' + pos);
 
     for(;;) {
-      var t = lex.getToken();
+      const t = lex.getToken();
 
       if(t === null) {
         break;
       }
 
       if(t.isOperator()) {
-        if(t.is(OPERATOR.COMMA)) {
+        if(t.isComma()) {
           if(buf.length === 0) {
             // Error
             return null;
           }
-          args.push(_buildAST(buf.slice()));
+          args.push(this._buildAST(buf.slice()));
           buf = [];
           continue;
-        }else if(t.is(OPERATOR.CLOSE_PAR)) {
+        }else if(t.isClosePar()) {
           if(par_cnt === 0) {
             if(args.length > 0 && buf.length === 0) {
               // Error
               return null;
             }
             if(buf.length > 0) {
-              args.push(_buildAST(buf.slice()));
+              args.push(this._buildAST(buf.slice()));
             }
             buf = [];
             break; // End of function call
@@ -119,17 +116,17 @@ var Parser = function() {
             buf.push(token);
             par_cnt--;
           }
-        }else if(t.is(OPERATOR.OPEN_PAR)) {
+        }else if(t.isOpenPar()) {
           buf.push(token);
           par_cnt++;
-        }else if(t.is(OPERATOR.WS)) {
+        }else if(t.isWhiteSpace()) {
           continue;
         }
         buf.push(t);
         continue;
       }
 
-      buf.push(_processToken(t, lex));
+      buf.push(this._processToken(t, lex));
     }
 
     if(args.length > 0) {
@@ -137,135 +134,183 @@ var Parser = function() {
     }else {
       //console.log('<' + fname + '> no args');
     }
-    //console.log('END function <' + fname + '> pos:' + pos);
 
-    return new ASTNodeFunc(fname, args);
-  };
+    return new ASTNodeFunc(token.toString(), args);
+  }
 
-  function _processMemberOf(token, lex) {
-    var ident = token.toString();
-    var pos = token.getPos();
+  _processMemberOf(token, lex) {
+    const ident = token.toString();
     lex.getToken(); // Skip '.'
 
-    var nt = lex.getToken();
+    const nt = lex.getToken();
     if(nt === null || !nt.isIdentifer()) {
       return null;
     }
 
-    var next = _processIdentifer(nt, lex);
-
+    const next = this._processIdentifer(nt, lex);
     return new ASTNodeMemberOfObj(ident, next);
-  };
+  }
 
-  function _processIdentifer(token, lex) {
-    var ident   = token.toString();
-    var pos     = token.getPos();
-    var nexttok = lex.getToken();
+  _processIdentifer(token, lex) {
+    const ident   = token.toString();
+    const nexttok = lex.getToken();
+
     if(nexttok === null) {
       return new ASTNodeVariable(ident);
     }
+
     lex.putback(nexttok);
-    if(nexttok.isOperator() && nexttok.is(OPERATOR.OPEN_PAR)) {
-      return _processFunction(token, lex);
+    if(nexttok.isOperator() && nexttok.isOpenPar()) {
+      return this._processFunction(token, lex);
     }
-    if(nexttok.isOperator() && nexttok.is(OPERATOR.DOT)) {
-      return _processMemberOf(token, lex);
+    if(nexttok.isOperator() && nexttok.isDot()) {
+      return this._processMemberOf(token, lex);
     }
+
     return new ASTNodeVariable(ident);
-  };
+  }
 
-  function _processConst(token) {
-    return _token2astnode(token);
-  };
+  _processConst(token) {
+    return this._token2astnode(token);
+  }
 
-  function _processOperator(token, operators, operands) {
+  _processOperator(token, operators, operands, lex) {
+
     if(operators.length === 0) {
-      operators.push(token);
-    }else {
-      var operator = operators[operators.length - 1];
-      if(token.is(OPERATOR.OPEN_PAR) || token.getPrecedence() > operator.getPrecedence()) {
-        operators.push(token);
-      }else if(token.is(OPERATOR.CLOSE_PAR)) {
-        for(;;) {
-          var operator = operators.pop();
-          if(operator.is(OPERATOR.OPEN_PAR)) {
-            break;
-          }
-          var right_operand = operands.pop();
-          var left_operand = operands.pop();
-          operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
-        }
-     }else {
-       operands.push(_createBinExprNode(operators, operands));
-       operators.push(token);
-     }
-    }
-  };
+      let is_save_token = true;
 
-  function _processToken(token, lex) {
+      if(token.isUnary()) {
+
+        const nexttok = lex.getToken();
+
+        if(nexttok === null) {
+          this._last_error = ParserError.UnexpectedTokenSeq();
+          return null;
+        }
+
+        if(nexttok instanceof TokenConst) {
+          operands.push(new ASTNodeUnaryExpr(token.getOperator(), this._processConst(nexttok)));
+          is_save_token = false;
+        }else if(nexttok instanceof TokenIdentifer) {
+          operands.push(new ASTNodeUnaryExpr(token.getOperator(), this._processIdentifer(nexttok, lex)));
+          is_save_token = false;
+        }else {
+          lex.putback(nexttok);
+        }
+      }
+
+      if(is_save_token) {
+        operators.push(token);
+      }
+
+    }else {
+      this._processOperators(token, operators, operands);
+    }
+  }
+
+  _processOperators(token, operators, operands) {
+    const operator = operators[operators.length - 1];
+
+    if(token.isOpenPar() || token.getPrecedence() > operator.getPrecedence()) {
+      operators.push(token);
+    }else if(token.isClosePar()) {
+      for(;;) {
+        const operator = operators.pop();
+        if(operator.isOpenPar()) {
+          break;
+        }
+
+        const right_operand = operands.pop();
+        const left_operand = operands.pop();
+
+        operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
+      }
+    }else {
+      operands.push(this._createBinExprNode(operators, operands));
+      operators.push(token);
+    }
+  }
+
+  _processToken(token, lex) {
     switch(token.getType()) {
-      case TTOKEN.IDENTIFER:
-        return _processIdentifer(token, lex);
-      case TTOKEN.CONST:
-        return _processConst(token);
+      case TOKEN_TYPE.IDENTIFER:
+        return this._processIdentifer(token, lex);
+      case TOKEN_TYPE.CONST:
+        return this._processConst(token);
+      default:
+        this._last_error = ParserError.UnexpectedToken(token);
+        break;
     }
     return null;
-  };
+  }
 
-  function _process(token, lex, operators, operands) {
+  _process(token, lex, operators, operands) {
     switch(token.getType()) {
-      case TTOKEN.IDENTIFER:
-           operands.push(_processToken(token, lex));
+      case TOKEN_TYPE.IDENTIFER:
+           operands.push(this._processToken(token, lex));
         break;
-      case TTOKEN.CONST:
-          operands.push(_processToken(token, lex));
+      case TOKEN_TYPE.CONST:
+          operands.push(this._processConst(token, lex));
         break;
-      case TTOKEN.OPERATOR:
-          _processOperator(token, operators, operands);
+      case TOKEN_TYPE.OPERATOR:
+          this._processOperator(token, operators, operands, lex);
         break;
+      default:
+          this._last_error = ParserError.UnexpectedToken(token);
+      break;
     }
-  };
+  }
 
-  function _parseExpr(lex) {
-    var operands   = [];
-    var operators  = [];
+  _parseExpr(lex) {
+    let operands = [];
+    let operators = [];
 
     for(;;) {
-      var token = lex.getToken();
+      const token = lex.getToken();
+
       if(token === null) {
         break;
       }
-      if(token.isOperator() && token.is(OPERATOR.WS)) {
+
+      if(token.isOperator() && token.isWhiteSpace()) {
         continue;
       }
-      _process(token, lex, operators, operands);
+
+      this._process(token, lex, operators, operands);
+
+      if(this._last_error !== null) {
+        return null;
+      }
     }
 
     if(lex.getLastError() !== null) {
+      this._last_error = lex.getLastError();
       return null;
     }
 
-    while(operators.length != 0) {
-      operands.push(_createBinExprNode(operators, operands));
+    while(operators.length !== 0) {
+      operands.push(this._createBinExprNode(operators, operands));
     }
 
     if(operands.length === 1) {
       return operands[0];
     }
 
+    this._last_error = ParserError.UnableParseExpr();
+
     return null;
-  };
+  }
 
-  this.parse = function(lex) {
-    _ast = _parseExpr(lex);
-    return _ast !== null;
-  };
+  parse(lex) {
+    this._ast = this._parseExpr(lex);
+    return this._ast !== null;
+  }
 
-  this.getLastError = function() {
+  getLastError() {
+    return this._last_error;
+  }
 
-  };
-
-  this.getAST = function() {
-    return _ast;
-  };
-};
+  getAST() {
+    return this._ast;
+  }
+}

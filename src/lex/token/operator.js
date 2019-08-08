@@ -1,27 +1,47 @@
-/**
- * Token operator
- * @param {[type]} token [description]
- * @param {[type]} pos   [description]
- * @param {[type]} op  [description]
- */
-var TokenOperator = function(token, pos, op) {
-  Token.call(this, TTOKEN.OPERATOR, token, pos);
-  this.op    = op;
-};
-_extends(TokenOperator, Token);
+import Token from './token';
+import TOKEN_TYPE from './type';
+import OPERATOR from '../operator';
 
-TokenOperator.prototype.getOperator = function() {
-  return this.op;
-};
+export default class TokenOperator extends Token {
+  constructor(token, pos, op, precedence) {
+    super(TOKEN_TYPE.OPERATOR, token, pos);
+    this.precedence = precedence;
+    this.op = op;
+  }
 
-TokenOperator.prototype.getPrecedence = function() {
-  return _precedence[this.token] !== undefined ? _precedence[this.token] : null;
-};
+  getOperator() {
+    return this.op;
+  }
 
-TokenOperator.prototype.is = function(op_code) {
-  return this.op === op_code;
-};
+  getPrecedence() {
+    return this.precedence;
+  }
 
-TokenOperator.prototype.clone = function() {
-  return new TokenOperator(this.toString(), this.getPos(), this.getOperator());
-};
+  isWhiteSpace() {
+    return this.op === OPERATOR.WS;
+  }
+
+  isOpenPar() {
+    return this.op === OPERATOR.OPEN_PAR;
+  }
+
+  isClosePar() {
+    return this.op === OPERATOR.CLOSE_PAR;
+  }
+
+  isComma() {
+    return this.op === OPERATOR.COMMA;
+  }
+
+  isDot() {
+    return this.op === OPERATOR.DOT;
+  }
+
+  isUnary() {
+    return OPERATOR.NOT === this.op;
+  }
+
+  clone() {
+    return new TokenOperator(this.toString(), this.getPos(), this.getOperator(), this.getPrecedence());
+  }
+}

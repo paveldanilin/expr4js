@@ -1,16 +1,17 @@
-/**
- * @param {[type]} name [description]
- */
-var ASTNodeVariable = function(name) {
-  ASTNode.call(this, ASTNODE.VARIABLE);
-  this.name = name;
-};
-_extends(ASTNodeVariable, ASTNode);
+import ASTNode from './node';
+import AST_NODE_TYPE from './type';
 
-ASTNodeVariable.prototype.getName = function() {
-  return this.name;
-};
+export default class ASTNodeVariable extends ASTNode {
+  constructor(name) {
+    super(AST_NODE_TYPE.VARIABLE);
+    this.name = name;
+  }
 
-ASTNodeVariable.prototype.execute = function(scope) {
-  return scope[this.name] || null;
-};
+  getName() {
+    return this.name;
+  }
+
+  execute(scope) {
+    return scope[this.name] !== undefined ? scope[this.name] : null;
+  }
+}

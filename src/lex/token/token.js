@@ -1,47 +1,45 @@
-/**
- * Base token
- * @param {[type]} token [description]
- * @param {[type]} pos   [description]
- */
-var Token = function(type, token, pos) {
-  this.type  = type;
-  this.token = token;
-  this.pos   = pos;
-};
-Token.prototype = {
-  getType: function() {
+import TOKEN_TYPE from './type';
+
+export default class Token {
+  constructor(type, token, pos) {
+    this.type = type;
+    this.token = token;
+    this.pos = pos;
+  }
+
+  getType() {
     return this.type;
-  },
+  }
 
-  toString: function() {
-    return this.token;
-  },
-
-  getPos: function() {
+  getPos() {
     return this.pos;
-  },
+  }
 
-  isError: function() {
-    return this.type === TTOKEN.ERROR;
-  },
+  isError() {
+    return this.type === TOKEN_TYPE.ERROR;
+  }
 
-  isIdentifer: function() {
-    return this.type === TTOKEN.IDENTIFER;
-  },
+  isIdentifer() {
+    return this.type === TOKEN_TYPE.IDENTIFER;
+  }
 
-  isConst: function() {
-    return this.type === TTOKEN.CONST;
-  },
+  isConst() {
+    return this.type === TOKEN_TYPE.CONST;
+  }
 
-  isOperator: function() {
-    return this.type === TTOKEN.OPERATOR;
-  },
+  isOperator() {
+    return this.type === TOKEN_TYPE.OPERATOR;
+  }
 
-  isKeyword: function() {
-    return this.type === TTOKEN.KEYWORD;
-  },
+  isKeyword() {
+    return this.type === TOKEN_TYPE.KEYWORDS;
+  }
 
-  clone: function() {
+  clone() {
     return new Token(this.type, this.token, this.pos);
   }
-};
+
+  toString() {
+    return this.token;
+  }
+}

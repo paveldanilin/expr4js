@@ -1,0 +1,12 @@
+@import url(./_align/layout__container_align-center.css);
+@import url(_indent-b/layout__container_indent-b-xxl.css);
+@import url(_indent-b/layout__container_indent-b-xxxxl.css);
+@import url(./_space-v/layout__container_space-v-xxxxl.css);
+@import url(./_space-v/layout__container_space-v-xxxxxl.css);
+@import url(./_size/layout__container_size-m.css);
+@import url(./_size/layout__container_size-s.css);
+@import url(./_border/layout__container_border.css);
+
+.layout__container {
+
+}

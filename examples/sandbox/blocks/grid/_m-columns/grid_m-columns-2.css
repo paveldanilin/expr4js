@@ -1,0 +1,3 @@
+.grid_m-columns-2 {
+    grid-template-columns: repeat(2, 1fr);
+}

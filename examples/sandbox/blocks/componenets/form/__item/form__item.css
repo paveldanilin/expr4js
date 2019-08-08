@@ -1,0 +1,23 @@
+@import url(./_border/form__item_border-bottom.css);
+@import url(./_distribute/form__item-distribute-between.css);
+@import url(./_indent-b/form__item_indent-b-xxs.css);
+@import url(./_indent-b/form__item_indent-b-xxxs.css);
+@import url(./_indent-b/form__item_indent-b-s.css);
+@import url(./_indent-b/form__item_indent-b-m.css);
+@import url(./_indent-b/form__item_indent-b-l.css);
+@import url(./_indent-b/form__item_indent-b-xl.css);
+@import url(./_indent-b/form__item_indent-b-xxl.css);
+@import url(./_indent-b/form__item_indent-b-xxxl.css);
+@import url(./_indent-b/form__item_indent-b-xxxxl.css);
+
+.form__item {
+    display: flex;
+}
+
+/*
+У последнего пункта в списке при использовании модификатора border со значением bottom обнуляются стили на границу во
+избежание пересечения с круговой границей самого блока.
+ */
+.form__item:last-child {
+    border-bottom: none;
+}

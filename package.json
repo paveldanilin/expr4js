@@ -1,0 +1,37 @@
+{
+  "name": "expr4js",
+  "version": "0.0.2",
+  "description": "A JavaScript module for expression parsing and evaluation",
+  "main": "dist/expr4.js",
+  "scripts": {
+    "test": "jest --config jest.config.json --forceExit",
+    "build": "webpack --config webpack.prod.js",
+    "dev": "webpack --config webpack.dev.js",
+    "lint": "eslint .\\src",
+    "sandbox-start": "webpack-dev-server --config webpack.sandbox.js --progress",
+    "sandbox-build": "webpack --config webpack.sandbox.js"
+  },
+  "author": "Pavel.Danilin",
+  "devDependencies": {
+    "eslint": "6.1.0",
+    "webpack-merge": "4.2.1",
+    "jest": "^24.8.0",
+    "babel-jest": "^24.8.0",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "webpack": "4.35.0",
+    "webpack-cli": "^3.3.4",
+    "webpack-dev-server": "3.7.2",
+    "babel-loader": "^8.0.6",
+    "css-loader": "3.2.0",
+    "style-loader": "1.0.0",
+    "file-loader": "4.2.0",
+    "html-webpack-plugin": "3.2.0",
+    "mini-css-extract-plugin": "0.8.0"
+  },
+  "babel": {
+    "presets": [
+      "@babel/env"
+    ]
+  }
+}

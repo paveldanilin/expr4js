@@ -1,19 +1,17 @@
-/**
- * Token keyword
- * @param {[type]} token [description]
- * @param {[type]} pos   [description]
- * @param {[type]} op  [description]
- */
-var TokenKeyword = function(token, pos, code) {
-  Token.call(this, TTOKEN.KEYWORD, token, pos);
-  this.code  = code;
-};
-_extends(TokenKeyword, Token);
+import Token from './token';
+import TOKEN_TYPE from './type';
 
-TokenKeyword.prototype.getCode = function() {
-  return this.code;
-};
+export default class TokenKeyword extends Token {
+  constructor(token, pos, code) {
+    super(TOKEN_TYPE.KEYWORDS, token, pos);
+    this.code = code;
+  }
 
-TokenKeyword.prototype.clone = function() {
-  return new TokenKeyword(this.toString(), this.getPos(), this.getCode());
-};
+  getCode() {
+    return this.code;
+  }
+
+  clone() {
+    return new TokenKeyword(this.toString(), this.getPos(), this.getCode());
+  }
+}

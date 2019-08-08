@@ -1,6 +1,17 @@
 # expr4js
 **expr4js** is a JavaScript module for expression parsing and evaluation. 
 
+### Build
+* Test: ```npm test```
+* lint: ```npm run lint```
+* Dev: ```npm run dev```
+* Prod: ```npm run build```
+
+Before play in sandbox you must perform either: ```npm run dev``` or ```npm run build```
+
+* Sandbox build: ```sandbox-build```
+* Sandbox start: ```sandbox-sstart```
+
 ## Allowed operators
   - Relational and comparison operators: >, <, >=, <=, ==, !=
   - Arithmetic operatos: *, /, -, +

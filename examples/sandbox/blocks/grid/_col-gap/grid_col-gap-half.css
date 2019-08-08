@@ -1,0 +1,3 @@
+.grid_col-gap-half {
+    grid-column-gap: var(--gap-half);
+}

@@ -1,19 +1,17 @@
-/**
- * Token const
- * @param {[type]} token [description]
- * @param {[type]} pos   [description]
- * @param {[type]} op  [description]
- */
-var TokenConst = function(token, pos, dtype) {
-  Token.call(this, TTOKEN.CONST, token, pos);
-  this.dtype = dtype;
-};
-_extends(TokenConst, Token);
+import Token from './token';
+import TOKEN_TYPE from './type';
 
-TokenConst.prototype.getDataType = function() {
-  return this.dtype;
-};
+export default class TokenConst extends Token {
+  constructor(token, pos, dataType) {
+    super(TOKEN_TYPE.CONST, token, pos);
+    this.dtype = dataType;
+  }
 
-TokenConst.prototype.clone = function() {
-  return new TokenConst(this.toString(), this.getPos(), this.getDataType());
-};
+  getDataType() {
+    return this.dtype;
+  }
+
+  clone() {
+    return new TokenConst(this.toString(), this.getPos(), this.getDataType());
+  }
+}

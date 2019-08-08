@@ -1,0 +1,13 @@
+@import url(./_border/form_border-all.css);
+@import url(./_view/form_view-default.css);
+
+@import url(./__item/form__item.css);
+@import url(./__label/form__label.css);
+@import url(./__header/form__header.css);
+@import url(./__footer/form__footer.css);
+@import url(./__control/form__control.css);
+@import url(./__content/form__content.css);
+@import url(./__content-item/form__content-item.css);
+
+.form {
+}
