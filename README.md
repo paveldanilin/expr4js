@@ -10,7 +10,7 @@
 Before play in sandbox you must perform either: ```npm run dev``` or ```npm run build```
 
 * Sandbox build: ```sandbox-build```
-* Sandbox start: ```sandbox-sstart```
+* Sandbox start: ```sandbox-start```
 
 ## Allowed operators
   - Relational and comparison operators: >, <, >=, <=, ==, !=
