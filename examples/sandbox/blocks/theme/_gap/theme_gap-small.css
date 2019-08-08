@@ -1,0 +1,4 @@
+.theme_gap_small {
+    --gap: var(--space-m);
+    --gap-half: calc(var(--gap) / 2);
+}

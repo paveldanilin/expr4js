@@ -1,0 +1,3 @@
+.grid_row-gap-full {
+    grid-row-gap: var(--gap);
+}

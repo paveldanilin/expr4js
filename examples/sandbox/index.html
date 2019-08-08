@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>expr4js</title>
+    <link rel="stylesheet" href="./main.css">
+</head>
+<body class="theme theme_color-default theme_size-default theme_space-default theme_gap_small">
+    <div class="layout layout__container layout__container_align-center layout__container_size-m layout__container_indent-b-xxl layout__container_space-v-xxxxl">
+
+        <div class="grid grid_m-columns-2 grid_row-gap-half grid_col-gap-half">
+
+            <div class="grid__fraction">
+                <ul id="exampleList" class="list list_view-default">
+                    <li data-example="example_1" class="list__item list__item_border-bottom list__item_indent-b-m list__item_over">Example 1</li>
+                    <li data-example="example_2" class="list__item list__item_border-bottom list__item_indent-b-m list__item_over">Example 2</li>
+                    <li data-example="example_3" class="list__item list__item_border-bottom list__item_indent-b-m list__item_over">Example 3</li>
+                </ul>
+            </div>
+
+            <div class="grid__fraction">
+                <form id="sandbox" class="form form_view-default">
+
+                    <div class="grid grid_m-columns-2 grid_row-gap-half grid_col-gap-half">
+
+                        <div class="form__item form__control grid__fraction grid__fraction_m-col-2">
+                            <input id="expression" class="input input_size-m" placeholder="Expression">
+                        </div>
+
+                        <div class="form__item form__control grid__fraction">
+                            <textarea id="model" class="input input_size-xxxxl" placeholder="Model"></textarea>
+                        </div>
+
+                        <div class="form__item grid__fraction theme theme_color-default">
+                            <div class="theme theme_color-warning informer informer_border-all informer_view-default">
+                                <div id="result" class="informer__content informer__content_space-a-xxl"></div>
+                            </div>
+                        </div>
+
+                        <div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <script src="expr4.js"></script>
+    <script src="sandbox.js"></script>
+</body>
+</html>

@@ -1,9 +1,7 @@
 import AST_NODE_TYPE from './type';
 
-class ASTNode
-{
-  constructor(type)
-  {
+export default class ASTNode {
+  constructor(type)   {
     this.type = type;
   }
 
@@ -31,9 +29,7 @@ class ASTNode
     return this.type === AST_NODE_TYPE.MEMBER_OF_OBJ;
   }
 
-  execute(scope) {
+  execute() {
     return null;
   }
 }
-
-export default ASTNode;

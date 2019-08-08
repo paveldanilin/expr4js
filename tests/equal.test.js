@@ -1,9 +1,11 @@
-import Expr4JS from '../dist/expr4js.bundle';
+const expr4js = require('../dist/expr4.js').default;
+
+const exprParser = new expr4js();
 
 describe("Operator Equal", function() {
 
   it("1==1", function() {
-    const expr = Expr4JS.parse('1==1');
+    const expr = exprParser.parse('1==1');
 
     if(expr) {
       const result = expr.execute();
@@ -14,7 +16,7 @@ describe("Operator Equal", function() {
   });
 
   it("a==b", function() {
-    const expr = Expr4JS.parse('a==b');
+    const expr = exprParser.parse('a==b');
     const scope = {
       a: 100,
       b: 100
@@ -29,7 +31,7 @@ describe("Operator Equal", function() {
   });
 
   it("100==getNumber()", function() {
-    const expr = Expr4JS.parse('100==getNumber()');
+    const expr = exprParser.parse('100==getNumber()');
     const scope = {
       getNumber: function() {
         return 100;
@@ -45,7 +47,7 @@ describe("Operator Equal", function() {
   });
 
   it("55 == fruits.banana", function() {
-    const expr = Expr4JS.parse('55 == fruits.banana');
+    const expr = exprParser.parse('55 == fruits.banana');
     const scope = {
       fruits: {
         banana: 55,
@@ -62,7 +64,7 @@ describe("Operator Equal", function() {
   });
 
   it("55 == fruits.getBanana()", function() {
-    const expr = Expr4JS.parse('55 == fruits.getBanana()');
+    const expr = exprParser.parse('55 == fruits.getBanana()');
     const scope = {
       fruits: {
         getBanana: function() {
@@ -80,7 +82,7 @@ describe("Operator Equal", function() {
   });
 
   it("'hello' == 'hello'", function() {
-    const expr = Expr4JS.parse("'hello' == 'hello'");
+    const expr = exprParser.parse("'hello' == 'hello'");
 
     if(expr) {
       const result = expr.execute();
@@ -91,7 +93,7 @@ describe("Operator Equal", function() {
   });
 
   it("\"hello\" == \"hello\"", function() {
-    const expr = Expr4JS.parse("\"hello\" == \"hello\"");
+    const expr = exprParser.parse("\"hello\" == \"hello\"");
 
     if(expr) {
       const result = expr.execute();
@@ -102,7 +104,7 @@ describe("Operator Equal", function() {
   });
 
   it("'0'==a", function() {
-    const expr = Expr4JS.parse("0==a");
+    const expr = exprParser.parse("0==a");
 
     const scope = {
       a: 0

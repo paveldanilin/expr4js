@@ -2,23 +2,19 @@ import ASTNode from './node';
 import AST_NODE_TYPE from './type';
 import OPERATOR from '../../lex/operator';
 
-class ASTNodeExpr extends ASTNode
-{
-  constructor(operator, left_operand, right_operand)
-  {
+export default class ASTNodeExpr extends ASTNode {
+  constructor(operator, left_operand, right_operand) {
     super(AST_NODE_TYPE.EXPR);
     this.op = operator;
     this.left = left_operand;
     this.right = right_operand;
   }
 
-  toString()
-  {
+  toString() {
     return this.op + '(' + this.left.toString() + ',' + this.right.toString() + ')';
   }
 
-  in(needle, haystack)
-  {
+  in(needle, haystack) {
     const to = typeof haystack;
 
     if( Array.isArray(haystack) || to === 'string' ) {
@@ -32,8 +28,7 @@ class ASTNodeExpr extends ASTNode
     return null;
   }
 
-  execute(scope)
-  {
+  execute(scope) {
     switch(this.op) {
       case OPERATOR.SUM: return this.left.execute(scope) + this.right.execute(scope);
       case OPERATOR.DIF: return this.left.execute(scope) - this.right.execute(scope);
@@ -50,9 +45,8 @@ class ASTNodeExpr extends ASTNode
       case OPERATOR.NEQ: return this.left.execute(scope) != this.right.execute(scope);
       case OPERATOR.DOT: return this.right.execute(this.left.execute(scope));
       case OPERATOR.IN: return this.in(this.left.execute(scope), this.right.execute(scope));
+      default:
+        return null;
     }
-    return null;
   }
 }
-
-export default ASTNodeExpr;

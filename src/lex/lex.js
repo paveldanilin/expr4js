@@ -4,45 +4,48 @@ import OPERATOR from './operator';
 import DATA_TYPE from './datatype';
 import tokenFactory from './factory';
 
-const _keywords = {
-  'in': 1
-};
-const _stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-', '%'];
-const _precedence = {
-  '(': 1,
-  ')': 2,
-  '||': 3, 'or': 3,
-  '&&': 4, 'and': 4,
-  '<': 5, '>': 5, '<=': 5, '>=': 5, '==': 5, '!=': 5, '?': 5,
-  '+':  6, '-': 6,
-  '*':  7, '/': 7, '%': 7,
-  '.': 8
-};
+export default class Lex {
+  constructor(input) {
+    if(typeof input === 'string') {
+      this._input = {
+        buf: input,
+        buf_len: input.length,
+        pos: 0
+      };
+    } else {
+      this._input = input;
+    }
 
-const Lex = function(input)
-{
-  if(typeof input === 'string') {
-    var expr = input;
-    input = {
-      buf:     expr,
-      buf_len: expr.length,
-      pos:     0
+    this._prev_token = null;
+    this._back_token = null;
+    this._last_error = null;
+
+    this._keywords = {
+      'in': 1
+    };
+
+    this._stopchars = ['?', '!', '=', '>', '<', '"', '\'', '.', ' ', '(', ')', ',', '*', '+', '-', '%'];
+
+    this._precedence = {
+      '(': 1,
+      ')': 2,
+      '||': 3, 'or': 3,
+      '&&': 4, 'and': 4,
+      '<': 5, '>': 5, '<=': 5, '>=': 5, '==': 5, '!=': 5, '?': 5,
+      '+':  6, '-': 6,
+      '*':  7, '/': 7, '%': 7,
+      '.': 8
     };
   }
 
-  var _input      = input;
-  var _prev_token = null;
-  var _back_token = null;
-  var _last_error = null;
+  _isStopChar(ch) {
+    return this._stopchars.indexOf(ch) !== -1;
+  }
 
-  var _isStopChar = function(ch) {
-    return _stopchars.indexOf(ch) !== -1;
-  };
-
-  var _getString = function(quote_operator, start_from, input) {
-    var str = '';
-    var j = start_from + 1; // skip quote
-    var complete = false;
+  _getString(quote_operator, start_from, input) {
+    let str = '';
+    let j = start_from + 1; // skip quote
+    let complete = false;
 
     for(j; j < input.buf_len; j++) {
       if( (quote_operator === OPERATOR.QUOTE_DOUBLE && input.buf[j] === '"') ||
@@ -59,156 +62,140 @@ const Lex = function(input)
 
     input.pos = j + 1;
     return str;
-  };
+  }
 
-  var _nextChar = function(input) {
+  _nextChar(input) {
     if(input.pos + 1 < input.buf_len) {
       return input.buf[input.pos + 1];
     }
     return null;
-  };
+  }
 
-  var _isOperator = function(token, input) {
-    var op_code = null;
+  _isOperator(token, input) {
+    let opCode = null;
+    let bufToken = token;
 
     switch(token) {
       case "'":
-        op_code = OPERATOR.QUOTE_SINGLE;
+        opCode = OPERATOR.QUOTE_SINGLE;
         break;
       case '"':
-        op_code = OPERATOR.QUOTE_DOUBLE;
+        opCode = OPERATOR.QUOTE_DOUBLE;
         break;
       case ",":
-        op_code = OPERATOR.COMMA;
+        opCode = OPERATOR.COMMA;
         break;
       case '?':
-        op_code = OPERATOR.IN;
+        opCode = OPERATOR.IN;
         break;
       case '!':
-        if(_nextChar(input) === '=') {
+        if(this._nextChar(input) === '=') {
           input.pos++;
-          token += '=';
-          op_code = OPERATOR.NEQ;
+          bufToken += '=';
+          opCode = OPERATOR.NEQ;
         }else {
-          op_code = OPERATOR.NOT;
+          opCode = OPERATOR.NOT;
         }
         break;
       case '(':
-        op_code = OPERATOR.OPEN_PAR;
+        opCode = OPERATOR.OPEN_PAR;
         break;
       case ')':
-        op_code = OPERATOR.CLOSE_PAR;
+        opCode = OPERATOR.CLOSE_PAR;
         break;
       case '+':
-        if(_nextChar(input) === '+') {
+        if(this._nextChar(input) === '+') {
           input.pos++;
-          token += '+';
-          op_code = OPERATOR.INC;
+          bufToken += '+';
+          opCode = OPERATOR.INC;
         }else {
-          op_code = OPERATOR.SUM;
+          opCode = OPERATOR.SUM;
         }
         break;
       case '-':
-        if(_nextChar(input) === '-') {
+        if(this._nextChar(input) === '-') {
           input.pos++;
-          token += '-';
-          op_code = OPERATOR.DEC;
+          bufToken += '-';
+          opCode = OPERATOR.DEC;
         }else {
-          op_code = OPERATOR.DIF;
+          opCode = OPERATOR.DIF;
         }
         break;
       case '*':
-        op_code = OPERATOR.MUL;
+        opCode = OPERATOR.MUL;
         break;
       case '/':
-        op_code = OPERATOR.DIV;
+        opCode = OPERATOR.DIV;
         break;
       case '%':
-        op_code = OPERATOR.MOD;
+        opCode = OPERATOR.MOD;
         break;
       case "and":
-        op_code = OPERATOR.AND;
+        opCode = OPERATOR.AND;
         break;
       case "or":
-        op_code = OPERATOR.OR;
+        opCode = OPERATOR.OR;
         break;
       case ">":
-        if(_nextChar(input) === '=') {
+        if(this._nextChar(input) === '=') {
           input.pos++;
-          token += '=';
-          op_code = OPERATOR.GET;
+          bufToken += '=';
+          opCode = OPERATOR.GET;
         }else {
-          op_code = OPERATOR.GT;
+          opCode = OPERATOR.GT;
         }
         break;
       case "<":
-        if(_nextChar(input) === '=') {
+        if(this._nextChar(input) === '=') {
           input.pos++;
-          token += '=';
-          op_code = OPERATOR.LET;
+          bufToken += '=';
+          opCode = OPERATOR.LET;
         }else {
-          op_code = OPERATOR.LT;
+          opCode = OPERATOR.LT;
         }
         break;
       case "=":
-        if(_nextChar(input) === '=') {
+        if(this._nextChar(input) === '=') {
           input.pos++;
-          token += '=';
-          op_code = OPERATOR.EQ;
+          bufToken += '=';
+          opCode = OPERATOR.EQ;
         }
         break;
       case ".":
-        op_code = OPERATOR.DOT;
+        opCode = OPERATOR.DOT;
         break;
       case " ":
-        op_code = OPERATOR.WS;
+        opCode = OPERATOR.WS;
+        break;
+      default:
+        opCode = null;
         break;
     }
 
     return {
-      code:  op_code,
-      token: token,
-      precedence: _precedence[token] !== undefined ? _precedence[token] : null
+      code:  opCode,
+      token: bufToken,
+      precedence: this._precedence[bufToken] !== undefined ? this._precedence[bufToken] : null
     };
-  };
+  }
 
-  var _isKeyword = function(token) {
-    if(_keywords[token] !== undefined) {
-      return _keywords[token];
+  _isKeyword (token) {
+    if(this._keywords[token] !== undefined) {
+      return this._keywords[token];
     }
     return null;
-  };
+  }
 
-  var _isDigit = function(ch) {
-    return (
-              ch === '0' ||
-              ch === '1' ||
-              ch === '2' ||
-              ch === '3' ||
-              ch === '4' ||
-              ch === '5' ||
-              ch === '6' ||
-              ch === '7' ||
-              ch === '8' ||
-              ch === '9'
-          );
-  };
+  _isDigit(ch) {
+    return (/^[0-9]$/).test(ch);
+  }
 
-  /**
-   * [_getStringToken]
-   * @param  {TokenOperator} quote_op
-   * @param  {[type]} input    [description]
-   * @return {[type]}          [description]
-   */
-  var _getStringToken = function(quote_op, input) {
-    //console.log('Lex._getStringToken(' + quote_op + ',' + JSON.stringify(input) + ')');
-    var begin_pos = input.pos;
-    var str = _getString(quote_op, begin_pos, input);
-
-    //console.log('Lex._getStringToken(): got str=<' + str + '>');
+  _getStringToken(quote_op, input) {
+    const begin_pos = input.pos;
+    const str = this._getString(quote_op, begin_pos, input);
 
     if(str === null) {
-      _last_error = LexError.UnableToParseString(begin_pos);
+      this._last_error = LexError.UnableToParseString(begin_pos);
       return null;
     }
 
@@ -217,41 +204,40 @@ const Lex = function(input)
       pos: begin_pos,
       data_type: DATA_TYPE.STRING
     });
-  };
+  }
 
-  var _readNextToken = function(input) {
-    //console.log('Lex._readNextToken(): input.buf=' + input.buf + ', input.pos=' + input.pos);
-    var token = '';
+  _readNextToken(input) {
+    let token = '';
 
-    for(var i = input.pos; i < input.buf_len; i++) {
-      var ch = input.buf[i];
-      if(!_isStopChar(ch)) {
+    for(let i = input.pos; i < input.buf_len; i++) {
+      const ch = input.buf[i];
+      if(! this._isStopChar(ch)) {
         token += ch;
         continue;
       }
 
       if(token.length === 0) {
-        if(ch === '.' && _isDigit(_nextChar(input))) {
+        if(ch === '.' && this._isDigit(this._nextChar(input))) {
           token += '0' + ch;
           continue;
         }
 
-        if(_prev_token === null && (ch === '-' || ch === '+') && _isDigit(_nextChar(input))) {
+        if(this._prev_token === null && (ch === '-' || ch === '+') && this._isDigit(this._nextChar(input))) {
           // +number, -number
           token += ch;
           continue;
         }
 
-        var op = _isOperator(ch, input);
+        const op = this._isOperator(ch, input);
         if(op.code === null) {
           //console.log('Lex._readNextToken(): caught unknown operator <' + ch + '>');
-          _last_error = LexError.UnknownOperator(input.pos, ch);
+          this._last_error = LexError.UnknownOperator(input.pos, ch);
           return null;
         }
 
         if(op.code === OPERATOR.QUOTE_SINGLE || op.code === OPERATOR.QUOTE_DOUBLE) {
           //console.log('Lex._readNextToken(): trying to get string...');
-          return _getStringToken(op.code, input);
+          return this._getStringToken(op.code, input);
         }
 
         input.pos++;
@@ -262,7 +248,7 @@ const Lex = function(input)
           precedence: op.precedence
         });
       }else {
-        if((ch === '.' || _isDigit(ch)) && token.match(/([0-9])/)) {
+        if((ch === '.' || this._isDigit(ch)) && this._isDigit(token)/*token.match(/([0-9])/)*/) {
           token += ch;
           continue;
         }
@@ -275,7 +261,7 @@ const Lex = function(input)
       return null;
     }
 
-    var kw_code = _isKeyword(token);
+    const kw_code = this._isKeyword(token);
     if(kw_code !== null) {
       return tokenFactory("keyword", {
         token: token,
@@ -284,7 +270,7 @@ const Lex = function(input)
       });
     }
 
-    var op = _isOperator(token);
+    const op = this._isOperator(token);
     if(op.code !== null) {
       return tokenFactory("operator", {
         token: token,
@@ -296,7 +282,7 @@ const Lex = function(input)
 
     if(token.match(/(^|[ \t])([-+]?(\d+|\.\d+|\d+\.\d*))($|[^+-.])/)) {
       if(isNaN(+token)) {
-        _last_error = LexError.BadNumber(input.pos - token.length, token);
+        this._last_error = LexError.BadNumber(input.pos - token.length, token);
         return null;
       }
       return tokenFactory("const", {
@@ -306,14 +292,14 @@ const Lex = function(input)
       });
     }
 
-    if(!token.match(/^_?([_a-zA-Z])+$/)) {
-      _last_error = LexError.BadIdentifer(input.pos - token.length, token);
+    if(! token.match(/^_?([_a-zA-Z])+$/)) {
+      this._last_error = LexError.BadIdentifer(input.pos - token.length, token);
       return null;
     }
 
     //console.log('Lex._readNextToken(): trying to create Token.create("identifer", ' + token + ')');
 
-    var ret = tokenFactory("identifer", {
+    const ret = tokenFactory("identifer", {
       token: token,
       pos: input.pos - token.length
     });
@@ -321,44 +307,28 @@ const Lex = function(input)
     //console.log('Lex._readNextToken(): ret=' + ret);
 
     return ret;
-  };
+  }
 
-  /**
-   * [Return next token from input sequence]
-   * @return {Token} Token object
-   */
-  this.getToken = function() {
-    if(_back_token !== null) {
-      var t = _back_token.clone();
-      _back_token = null;
+  getToken() {
+    if(this._back_token !== null) {
+      const t = this._back_token.clone();
+      this._back_token = null;
       return t;
     }
-    _prev_token = _readNextToken(_input);
-    return _prev_token;
-  };
+    this._prev_token = this._readNextToken(this._input);
+    return this._prev_token;
+  }
 
-  /**
-   * [Putback token object]
-   * @param  {Token} token Token object
-   */
-  this.putback = function(token) {
+  putback(token) {
     if(token instanceof Token === false) {
-      _last_error = LexError.UnableToPutbackToken(_input.pos, token);
+      this._last_error = LexError.UnableToPutbackToken(this._input.pos, token);
       return false;
     }
-    _back_token = token.clone();
+    this._back_token = token.clone();
     return true;
-  };
+  }
 
-  /**
-   * [Return last error object]
-   * @return {LexError} LexError object
-   */
-  this.getLastError = function() {
-    return _last_error;
-  };
-
-};
-
-
-export default Lex;
+  getLastError() {
+    return this._last_error;
+  }
+}

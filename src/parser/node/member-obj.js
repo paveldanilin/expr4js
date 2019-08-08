@@ -1,17 +1,14 @@
 import ASTNode from './node';
 import AST_NODE_TYPE from './type';
 
-class ASTNodeMemberOfObj extends ASTNode
-{
-  constructor(obj_name, next)
-  {
+export default class ASTNodeMemberOfObj extends ASTNode {
+  constructor(obj_name, next) {
     super(AST_NODE_TYPE.MEMBER_OF_OBJ);
     this.obj_name = obj_name;
     this.next = next || null;
   }
 
-  getNextValue(next, scope)
-  {
+  getNextValue(next, scope) {
     if(next.isMemberOfObj() || next.isVariable() || next.isFunctionCall()) {
       return next.execute(scope);
     }
@@ -19,13 +16,11 @@ class ASTNodeMemberOfObj extends ASTNode
     return null;
   }
 
-  getObjName()
-  {
+  getObjName() {
     return this.obj_name;
   }
 
-  execute(scope)
-  {
+  execute(scope) {
     if( scope[this.obj_name] === undefined ) {
       return undefined;
     }
@@ -37,5 +32,3 @@ class ASTNodeMemberOfObj extends ASTNode
     return scope[this.obj_name];
   }
 }
-
-export default ASTNodeMemberOfObj;

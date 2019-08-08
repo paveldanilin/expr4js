@@ -1,0 +1,4 @@
+.list__item_over:hover {
+    background-color: var(--color-bg-primary);
+    color: var(--color-typo-link);
+}

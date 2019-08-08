@@ -13,58 +13,42 @@ const PARSER_ERROR = {
   }
 };
 
-/**
- * [ParserError]
- * @param {number} code
- * @param {string} msg
- * @param {object} token
- */
-const ParserError = function(code, msg, token)
-{
-  const _code  = code;
-  const _msg   = msg;
-  const _token = token;
+export default class ParserError {
+  constructor(code, msg, token) {
+    this._code = code;
+    this._msg = msg;
+    this._token = token;
+  }
 
-  /**
-   * [getToken]
-   * @return {object} [description]
-   */
-  this.getToken = function() {
-    return _token;
-  };
+  getToken() {
+    return this._token;
+  }
 
-  /**
-   * [getCode]
-   * @return {number} [description]
-   */
-  this.getCode = function() {
-    return _code;
-  };
+  getCode() {
+    return this._code;
+  }
 
-  /**
-   * [getMessage]
-   * @return {string}
-   */
-  this.getMessage = function() {
-    return _msg;
-  };
+  getMessage() {
+    return this._msg;
+  }
 
-};
+  static create(code, msg, token) {
+    return new ParserError(code, msg, token);
+  }
 
-ParserError.create = function(code, msg, token) {
-  return new ParserError(code, msg, token);
-};
+  static UnexpectedToken(token) {
+    return ParserError.create(PARSER_ERROR.UNEXPECTED_TOKEN.CODE, PARSER_ERROR.UNEXPECTED_TOKEN.MSG, token);
+  }
 
-ParserError.UnexpectedToken = function(token) {
-  return ParserError.create(PARSER_ERROR.UNEXPECTED_TOKEN.CODE, PARSER_ERROR.UNEXPECTED_TOKEN.MSG, token);
-};
+  static UnexpectedTokenSeq() {
+    return ParserError.create(
+        PARSER_ERROR.UNEXPECTED_TOKEN_SEQ.CODE,
+        PARSER_ERROR.UNEXPECTED_TOKEN_SEQ.MSG,
+        null
+    );
+  }
 
-ParserError.UnexpectedTokenSeq = function() {
-  return ParserError.create(PARSER_ERROR.UNEXPECTED_TOKEN_SEQ.CODE, PARSER_ERROR.UNEXPECTED_TOKEN_SEQ.MSG, null);
-};
-
-ParserError.UnableParseExpr = function() {
-  return ParserError.create(PARSER_ERROR.UNABLE_PARSE_EXPR.CODE, PARSER_ERROR.UNABLE_PARSE_EXPR.MSG, null);
-};
-
-export default ParserError;
+  static UnableParseExpr() {
+    return ParserError.create(PARSER_ERROR.UNABLE_PARSE_EXPR.CODE, PARSER_ERROR.UNABLE_PARSE_EXPR.MSG, null);
+  }
+}

@@ -4,38 +4,49 @@ import TokenKeyword from './token/keyword';
 import TokenOperator from './token/operator';
 import TOKEN_TYPE from './token/type';
 
+export default function tokenFactory(tokenType, values) {
+    const tokenTypeStr = tokenTypeToString(tokenType);
 
-function tokenFactory(token_type, values)
-{
-    if(typeof token_type == 'string') {
-
-        token_type = token_type.toLowerCase();
-
-        switch(token_type) {
-            case "identifer":
-                return new TokenIdentifer(values.token, values.pos);
-            case "const":
-                return new TokenConst(values.token, values.pos, values.data_type);
-            case "keyword":
-                return new TokenKeyword(values.token, values.pos, values.code);
-            case "operator":
-                return new TokenOperator(values.token, values.pos, values.op, values.precedence);
-        }
-    }
-
-    switch(token_type) {
-        case TOKEN_TYPE.IDENTIFER:
+    switch(tokenTypeStr) {
+        case 'identifer':
             return new TokenIdentifer(values.token, values.pos);
-        case TOKEN_TYPE.CONST:
+        case 'const':
             return new TokenConst(values.token, values.pos, values.data_type);
-        case TOKEN_TYPE.KEYWORDS:
+        case 'keyword':
             return new TokenKeyword(values.token, values.pos, values.code);
-        case TOKEN_TYPE.OPERATOR:
+        case 'operator':
             return new TokenOperator(values.token, values.pos, values.op, values.precedence);
-    }
 
-    return null;
+        default:
+            throw new Error(`Unknown token type "${tokenType}"`);
+    }
 }
 
+function tokenTypeToString(code) {
+    const datatype = typeof code;
 
-export default tokenFactory;
+    if (datatype === 'string') {
+        return code.toLowerCase();
+    }
+
+    if (datatype !== 'number') {
+        throw new Error(`Expected number, but got ${datatype}`);
+    }
+
+    switch(code) {
+        case TOKEN_TYPE.IDENTIFER:
+            return 'identifer';
+
+        case TOKEN_TYPE.CONST:
+            return 'const';
+
+        case TOKEN_TYPE.KEYWORDS:
+            return 'keyword';
+
+        case TOKEN_TYPE.OPERATOR:
+            return 'operator';
+
+        default:
+            throw new Error(`Unknown token code "${code}"`);
+    }
+}

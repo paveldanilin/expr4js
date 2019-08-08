@@ -2,9 +2,6 @@ import TOKEN_TYPE from '../src/lex/token/type';
 import LEX_ERROR from '../src/lex/errorcodes';
 import Lex from '../src/lex/lex';
 
-
-//----------------------------------------------------------------------------------------------------------------------
-
 describe("Lex#identifer", function() {
 
   it("'a' is identifer", function() {

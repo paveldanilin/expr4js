@@ -1,18 +1,14 @@
 import ASTNode from './node';
 import AST_NODE_TYPE from './type';
 
-class ASTNodeFunc extends ASTNode
-{
-  constructor(name, args)
-  {
+export default class ASTNodeFunc extends ASTNode {
+  constructor(name, args) {
     super(AST_NODE_TYPE.FUNCTION_CALL);
     this.name = name;
     this.args = args;
   }
 
-  execute(scope)
-  {
-
+  execute(scope) {
     if( scope[this.name] === undefined || typeof scope[this.name] !== 'function' ) {
       return null;
     }
@@ -27,5 +23,3 @@ class ASTNodeFunc extends ASTNode
     return scope[this.name].apply(scope, vargs);
   }
 }
-
-export default ASTNodeFunc;
