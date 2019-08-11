@@ -19,15 +19,27 @@ Before play in sandbox you must perform either: ```npm run dev``` or ```npm run 
   - Member access: .
   
 ## Usage
-#### Node
+
 ```javascript
-var jsexpr = require('jsexpr.min.js');
-```
-#### Html
-```html
-<head>
-  <script src="jsexpr.min.js"></script>
-</head>
+const expr4js = require('../dist/expr4.js').default;
+
+const exprParser = new expr4js();
+
+const model = {
+    car: {
+        color: 'green'
+    }
+};
+
+const expr = 'car.color == "green"';
+
+const r = exprParser.parse(expr);
+
+if (r === null) {
+    console.log(exprParser.getLastError().getMessage());
+} else {
+    console.log(`<${expr}>: ` + r.execute(model));
+}
 ```
 
 ## Examples
