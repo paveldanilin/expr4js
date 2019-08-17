@@ -3,5 +3,5 @@
     "verbose": false,
     "notify": true,
     "testEnvironment": "node",
-    "testMatch": ["<rootDir>/tests/**/*test.js"]
+    "testMatch": ["<rootDir>/__tests__/**/*test.js"]
 }
