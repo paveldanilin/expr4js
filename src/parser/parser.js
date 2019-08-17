@@ -16,7 +16,7 @@ export default class Parser {
 
   constructor() {
     this._ast = null;
-    this._last_error = null;
+    this._lastError = null;
   }
 
    _token2astnode(token) {
@@ -24,7 +24,7 @@ export default class Parser {
       case TOKEN_TYPE.IDENTIFER: return new ASTNodeVariable(token.toString());
       case TOKEN_TYPE.CONST: return new ASTNodeConst(token.toString(), token.getDataType());
       default:
-        this._last_error = ParserError.UnexpectedToken(token);
+        this._lastError = ParserError.UnexpectedToken(token);
       break;
     }
     return null;
@@ -33,18 +33,18 @@ export default class Parser {
    _createBinExprNode(operators, operands) {
     const operator = operators.pop();
 
-    let right_operand = operands.pop();
-    let left_operand = operands.pop();
+    let rightOperand = operands.pop();
+    let leftOperand = operands.pop();
 
-    if(right_operand instanceof Token) {
-      right_operand = this._token2astnode(right_operand);
+    if(rightOperand instanceof Token) {
+      rightOperand = this._token2astnode(rightOperand);
     }
 
-    if(left_operand instanceof Token) {
-      left_operand = this._token2astnode(left_operand);
+    if(leftOperand instanceof Token) {
+      leftOperand = this._token2astnode(leftOperand);
     }
 
-    return new ASTNodeExpr(operator.getOperator(), left_operand, right_operand);
+    return new ASTNodeExpr(operator.getOperator(), leftOperand, rightOperand);
   }
 
   _buildAST(chain) {
@@ -81,7 +81,7 @@ export default class Parser {
 
     const args = []; // AST nodes. Before build ASTNodeFunc - build AST noes for arguments.
     let buf = []; // Tokens buffer
-    let par_cnt = 0;
+    let parCnt = 0;
     lex.getToken(); // Skip '('
 
 
@@ -102,7 +102,7 @@ export default class Parser {
           buf = [];
           continue;
         }else if(t.isClosePar()) {
-          if(par_cnt === 0) {
+          if(parCnt === 0) {
             if(args.length > 0 && buf.length === 0) {
               // Error
               return null;
@@ -114,11 +114,11 @@ export default class Parser {
             break; // End of function call
           }else {
             buf.push(token);
-            par_cnt--;
+            parCnt--;
           }
         }else if(t.isOpenPar()) {
           buf.push(token);
-          par_cnt++;
+          parCnt++;
         }else if(t.isWhiteSpace()) {
           continue;
         }
@@ -177,29 +177,29 @@ export default class Parser {
   _processOperator(token, operators, operands, lex) {
 
     if(operators.length === 0) {
-      let is_save_token = true;
+      let isSaveToken = true;
 
       if(token.isUnary()) {
 
         const nexttok = lex.getToken();
 
         if(nexttok === null) {
-          this._last_error = ParserError.UnexpectedTokenSeq();
+          this._lastError = ParserError.UnexpectedTokenSeq();
           return null;
         }
 
         if(nexttok instanceof TokenConst) {
           operands.push(new ASTNodeUnaryExpr(token.getOperator(), this._processConst(nexttok)));
-          is_save_token = false;
+          isSaveToken = false;
         }else if(nexttok instanceof TokenIdentifer) {
           operands.push(new ASTNodeUnaryExpr(token.getOperator(), this._processIdentifer(nexttok, lex)));
-          is_save_token = false;
+          isSaveToken = false;
         }else {
           lex.putback(nexttok);
         }
       }
 
-      if(is_save_token) {
+      if(isSaveToken) {
         operators.push(token);
       }
 
@@ -220,10 +220,10 @@ export default class Parser {
           break;
         }
 
-        const right_operand = operands.pop();
-        const left_operand = operands.pop();
+        const rightOperand = operands.pop();
+        const leftOperand = operands.pop();
 
-        operands.push(new ASTNodeExpr(operator.getOperator(), left_operand, right_operand));
+        operands.push(new ASTNodeExpr(operator.getOperator(), leftOperand, rightOperand));
       }
     }else {
       operands.push(this._createBinExprNode(operators, operands));
@@ -238,7 +238,7 @@ export default class Parser {
       case TOKEN_TYPE.CONST:
         return this._processConst(token);
       default:
-        this._last_error = ParserError.UnexpectedToken(token);
+        this._lastError = ParserError.UnexpectedToken(token);
         break;
     }
     return null;
@@ -256,7 +256,7 @@ export default class Parser {
           this._processOperator(token, operators, operands, lex);
         break;
       default:
-          this._last_error = ParserError.UnexpectedToken(token);
+          this._lastError = ParserError.UnexpectedToken(token);
       break;
     }
   }
@@ -278,13 +278,13 @@ export default class Parser {
 
       this._process(token, lex, operators, operands);
 
-      if(this._last_error !== null) {
+      if(this._lastError !== null) {
         return null;
       }
     }
 
     if(lex.getLastError() !== null) {
-      this._last_error = lex.getLastError();
+      this._lastError = lex.getLastError();
       return null;
     }
 
@@ -296,7 +296,7 @@ export default class Parser {
       return operands[0];
     }
 
-    this._last_error = ParserError.UnableParseExpr();
+    this._lastError = ParserError.UnableParseExpr();
 
     return null;
   }
@@ -307,7 +307,7 @@ export default class Parser {
   }
 
   getLastError() {
-    return this._last_error;
+    return this._lastError;
   }
 
   getAST() {

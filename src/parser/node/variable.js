@@ -12,6 +12,6 @@ export default class ASTNodeVariable extends ASTNode {
   }
 
   execute(scope) {
-    return scope[this.name] !== undefined ? scope[this.name] : null;
+    return scope[this.name];
   }
 }

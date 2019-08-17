@@ -11,7 +11,7 @@ export default function tokenFactory(tokenType, values) {
         case 'identifer':
             return new TokenIdentifer(values.token, values.pos);
         case 'const':
-            return new TokenConst(values.token, values.pos, values.data_type);
+            return new TokenConst(values.token, values.pos, values.dataType);
         case 'keyword':
             return new TokenKeyword(values.token, values.pos, values.code);
         case 'operator':

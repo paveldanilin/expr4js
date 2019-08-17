@@ -2,10 +2,10 @@ import LEX_ERROR from './errorcodes';
 
 export default class LexError {
   constructor(code, msg, pos, token) {
-    this.code = code !== undefined ? code : null;
-    this.msg = msg !== undefined ? msg : null;
-    this.pos = pos !== undefined ? pos : null;
-    this.token = token !== undefined ? token : null;
+    this.code = code || null;
+    this.msg = msg || null;
+    this.pos = pos || null;
+    this.token = token || null;
   }
 
   getToken() {

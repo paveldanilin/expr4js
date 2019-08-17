@@ -32,7 +32,7 @@ export default class expr4js {
   parse(expr) {
     return this.doParse({
       buf:     expr,
-      buf_len: expr.length,
+      bufLen: expr.length,
       pos:     0
     });
   }

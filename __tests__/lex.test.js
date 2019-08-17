@@ -4,14 +4,13 @@ import Lex from '../src/lex/lex';
 
 describe("Lex#identifer", function() {
 
-  it("'a' is identifer", function() {
+  test("'a' is identifer", function() {
     const lex = new Lex("a");
 
     expect(lex.getToken().getType()).toBe(TOKEN_TYPE.IDENTIFER);
-
   });
 
-  it("'person' is identifer", function() {
+  test("'person' is identifer", function() {
     const lex = new Lex("person");
 
     expect(lex.getToken().isIdentifer()).toBe(true);
@@ -23,13 +22,13 @@ describe("Lex#const", function() {
 
   describe("number", function() {
 
-    it("'1' is const", function() {
+    test("'1' is const", function() {
       const lex = new Lex("1");
 
       expect(lex.getToken().getType()).toBe(TOKEN_TYPE.CONST);
     });
 
-    it("'0.5' is float const", function() {
+    test("'0.5' is float const", function() {
       const lex = new Lex("0.5");
 
       expect(lex.getToken().isConst()).toBe(true);
@@ -39,20 +38,20 @@ describe("Lex#const", function() {
 
   describe("string", function() {
 
-    it("'Hello, World!' is string const (single quote)", function() {
+    test("'Hello, World!' is string const (single quote)", function() {
       const lex = new Lex("'Hello, World!'");
 
       expect(lex.getToken().getType()).toBe(TOKEN_TYPE.CONST);
     });
 
-    it("\"Hello, World!\" is string const (double quote)", function() {
+    test('"Hello, World!" is string const (double quote)', function() {
       const s = '"Hello, World-2!"';
       const lex = new Lex(s);
 
       expect(lex.getToken().isConst()).toBe(true);
     });
 
-    it("String parse error: sign of close quote is missed (single quote)", function() {
+    test("String parse error: sign of close quote is missed (single quote)", function() {
       const lex = new Lex("'string const");
       const token = lex.getToken();
       const last_error = lex.getLastError().getMessage();
@@ -65,19 +64,19 @@ describe("Lex#const", function() {
 
 describe("Lex#operator", function() {
 
-  it("'==' is operator", function() {
+  test("'==' is operator", function() {
     const lex = new Lex("==");
 
     expect(lex.getToken().getType()).toBe(TOKEN_TYPE.OPERATOR);
   });
 
-  it("'>' is operator", function() {
+  test("'>' is operator", function() {
     const lex = new Lex(">");
 
     expect(lex.getToken().getType()).toBe(TOKEN_TYPE.OPERATOR);
   });
 
-  it("'%' precedence is 7", function() {
+  test("'%' precedence is 7", function() {
     const lex = new Lex("%");
 
     expect(lex.getToken().getPrecedence()).toBe(7);
@@ -85,7 +84,7 @@ describe("Lex#operator", function() {
 });
 
 describe("Lex#keyword", function() {
-  it("'in' is keyword", function() {
+  test("'in' is keyword", function() {
     const lex = new Lex("in");
 
     expect(lex.getToken().getType()).toBe(TOKEN_TYPE.KEYWORDS);
@@ -93,7 +92,7 @@ describe("Lex#keyword", function() {
 });
 
 describe("Lex#putback", function() {
-  it("putback token", function() {
+  test("putback token", function() {
 
     const lex = new Lex("1+1");
 
@@ -122,7 +121,7 @@ describe("Lex#putback", function() {
 
   });
 
-  it("putback non token", function() {
+  test("putback non token", function() {
     const lex = new Lex("1+1");
     const tok = lex.getToken();
 
@@ -133,7 +132,7 @@ describe("Lex#putback", function() {
 
 describe("Lex#error", function() {
 
-  it("PARSE_STRING='my string", function() {
+  test("PARSE_STRING='my string", function() {
     const lex = new Lex("'my string");
     lex.getToken(); // Trying to get = 'my string
 
@@ -141,7 +140,7 @@ describe("Lex#error", function() {
     //assert.equal(lex.getLastError().getCode(), LEX_ERROR.PARSE_STRING.CODE);
   });
 
-  it("BAD_NUMBER=67ii8", function() {
+  test("BAD_NUMBER=67ii8", function() {
     const lex = new Lex("67ii8");
     lex.getToken(); // Trying to get number
 
@@ -149,7 +148,7 @@ describe("Lex#error", function() {
     // assert.equal(lex.getLastError().getCode(), LEX_ERROR.BAD_NUMBER.CODE);
   });
 
-  it("BAD_NUMBER=-o67ii8", function() {
+  test("BAD_NUMBER=-o67ii8", function() {
     const lex = new Lex("-67ii8");
     lex.getToken(); // Trying to get number
 
@@ -157,7 +156,7 @@ describe("Lex#error", function() {
     //assert.equal(lex.getLastError().getCode(), LEX_ERROR.BAD_NUMBER.CODE);
   });
 
-  it("BAD_IDENTIFER=&gh", function() {
+  test("BAD_IDENTIFER=&gh", function() {
     const lex = new Lex("&gh");
     lex.getToken(); // Trying to get number
 
