@@ -37,12 +37,12 @@ export default class ASTNodeExpr extends ASTNode {
       case OPERATOR.MOD: return this.left.execute(scope) % this.right.execute(scope);
       case OPERATOR.GT: return this.left.execute(scope) > this.right.execute(scope);
       case OPERATOR.LT: return this.left.execute(scope) < this.right.execute(scope);
-      case OPERATOR.EQ: return this.left.execute(scope) == this.right.execute(scope);
+      case OPERATOR.EQ: return this.left.execute(scope) === this.right.execute(scope);
       case OPERATOR.GET: return this.left.execute(scope) >= this.right.execute(scope);
       case OPERATOR.LET: return this.left.execute(scope) <= this.right.execute(scope);
       case OPERATOR.AND: return this.left.execute(scope) && this.right.execute(scope);
       case OPERATOR.OR: return this.left.execute(scope) || this.right.execute(scope);
-      case OPERATOR.NEQ: return this.left.execute(scope) != this.right.execute(scope);
+      case OPERATOR.NEQ: return this.left.execute(scope) !== this.right.execute(scope);
       case OPERATOR.DOT: return this.right.execute(this.left.execute(scope));
       case OPERATOR.IN: return this.in(this.left.execute(scope), this.right.execute(scope));
       default:
