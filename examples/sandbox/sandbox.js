@@ -7,7 +7,7 @@ const resultOutput = document.getElementById('result');
 const exampleListInput = document.getElementById('exampleList');
 const examplesModel = {
     example_1: {
-        title: 'Example1',
+        title: 'Dot access',
         model: {
             car: {
                 color: "red"
@@ -16,7 +16,7 @@ const examplesModel = {
         expression: 'car.color == "red"'
     },
     example_2: {
-        title: 'Example2',
+        title: 'Arithmetic',
         model: {
             a: 5,
             b: 2
@@ -24,14 +24,36 @@ const examplesModel = {
         expression: '(a + 5) * b'
     },
     example_3: {
-        title: 'Example3',
+        title: 'String concat',
         model: {
             first: 'Hello, ',
             second: 'Guest'
         },
         expression: 'first + second'
     },
+    example_4: {
+        title: 'Logic "and"',
+        model: {
+            a: 1,
+            b: 10,
+            c: 10,
+            d: 1
+        },
+        expression: '(a + b) == 11 and 11 == (c + d)'
+    }
 };
+const listItemClasses = ['list__item', 'list__item_border-bottom', 'list__item_indent-b-m', 'list__item_over'];
+
+Object.keys(examplesModel).forEach((exampleKey) => {
+    const liElement = document.createElement('li');
+    liElement.setAttribute('data-example', exampleKey);
+    liElement.textContent = examplesModel[exampleKey].title;
+    listItemClasses.forEach((className) => liElement.classList.add(className));
+    exampleListInput.appendChild(liElement);
+
+});
+setExample(Object.keys(examplesModel)[0]);
+
 
 exampleListInput.addEventListener('click', (e) => {
     const exampleId = e.target.getAttribute('data-example');
@@ -80,10 +102,18 @@ function setExample(id) {
         return;
     }
 
+    Array.from(exampleListInput.children).forEach((liElement) => {
+        if (liElement.getAttribute('data-example') === id) {
+            liElement.classList.add('list__item_focus');
+        } else {
+            liElement.classList.remove('list__item_focus');
+        }
+    });
+
     modelInput.value = JSON.stringify(example.model);
     exprInput.value = example.expression;
     evalExpression();
 }
 
 
-setExample('example_1');
+//setExample('example_1');
