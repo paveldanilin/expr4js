@@ -3,11 +3,11 @@ import AST_NODE_TYPE from './type';
 import OPERATOR from '../../lex/operator';
 
 export default class ASTNodeExpr extends ASTNode {
-  constructor(operator, left_operand, right_operand) {
+  constructor(operator, leftOperand, rightOperand) {
     super(AST_NODE_TYPE.EXPR);
     this.op = operator;
-    this.left = left_operand;
-    this.right = right_operand;
+    this.left = leftOperand;
+    this.right = rightOperand;
   }
 
   toString() {

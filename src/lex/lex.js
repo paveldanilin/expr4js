@@ -9,16 +9,16 @@ export default class Lex {
     if(typeof input === 'string') {
       this._input = {
         buf: input,
-        buf_len: input.length,
+        bufLen: input.length,
         pos: 0
       };
     } else {
       this._input = input;
     }
 
-    this._prev_token = null;
-    this._back_token = null;
-    this._last_error = null;
+    this._prevToken = null;
+    this._backToken = null;
+    this._lastError = null;
 
     this._keywords = {
       'in': 1
@@ -42,14 +42,14 @@ export default class Lex {
     return this._stopchars.indexOf(ch) !== -1;
   }
 
-  _getString(quote_operator, start_from, input) {
+  _getString(quoteOperator, startFrom, input) {
     let str = '';
-    let j = start_from + 1; // skip quote
+    let j = startFrom + 1; // skip quote
     let complete = false;
 
-    for(j; j < input.buf_len; j++) {
-      if( (quote_operator === OPERATOR.QUOTE_DOUBLE && input.buf[j] === '"') ||
-          (quote_operator === OPERATOR.QUOTE_SINGLE && input.buf[j] === '\'') ) {
+    for(j; j < input.bufLen; j++) {
+      if( (quoteOperator === OPERATOR.QUOTE_DOUBLE && input.buf[j] === '"') ||
+          (quoteOperator === OPERATOR.QUOTE_SINGLE && input.buf[j] === '\'') ) {
         complete = true;
         break;
       }
@@ -65,7 +65,7 @@ export default class Lex {
   }
 
   _nextChar(input) {
-    if(input.pos + 1 < input.buf_len) {
+    if(input.pos + 1 < input.bufLen) {
       return input.buf[input.pos + 1];
     }
     return null;
@@ -190,26 +190,26 @@ export default class Lex {
     return (/^[0-9]$/).test(ch);
   }
 
-  _getStringToken(quote_op, input) {
-    const begin_pos = input.pos;
-    const str = this._getString(quote_op, begin_pos, input);
+  _getStringToken(quoteOp, input) {
+    const beginPos = input.pos;
+    const str = this._getString(quoteOp, beginPos, input);
 
     if(str === null) {
-      this._last_error = LexError.UnableToParseString(begin_pos);
+      this._lastError = LexError.UnableToParseString(beginPos);
       return null;
     }
 
     return tokenFactory("const", {
       token: str,
-      pos: begin_pos,
-      data_type: DATA_TYPE.STRING
+      pos: beginPos,
+      dataType: DATA_TYPE.STRING
     });
   }
 
   _readNextToken(input) {
     let token = '';
 
-    for(let i = input.pos; i < input.buf_len; i++) {
+    for(let i = input.pos; i < input.bufLen; i++) {
       const ch = input.buf[i];
       if(! this._isStopChar(ch)) {
         token += ch;
@@ -222,7 +222,7 @@ export default class Lex {
           continue;
         }
 
-        if(this._prev_token === null && (ch === '-' || ch === '+') && this._isDigit(this._nextChar(input))) {
+        if(this._prevToken === null && (ch === '-' || ch === '+') && this._isDigit(this._nextChar(input))) {
           // +number, -number
           token += ch;
           continue;
@@ -231,7 +231,7 @@ export default class Lex {
         const op = this._isOperator(ch, input);
         if(op.code === null) {
           //console.log('Lex._readNextToken(): caught unknown operator <' + ch + '>');
-          this._last_error = LexError.UnknownOperator(input.pos, ch);
+          this._lastError = LexError.UnknownOperator(input.pos, ch);
           return null;
         }
 
@@ -261,12 +261,12 @@ export default class Lex {
       return null;
     }
 
-    const kw_code = this._isKeyword(token);
-    if(kw_code !== null) {
+    const kwCode = this._isKeyword(token);
+    if(kwCode !== null) {
       return tokenFactory("keyword", {
         token: token,
         pos: input.pos - token.length,
-        code: kw_code
+        code: kwCode
       });
     }
 
@@ -282,18 +282,18 @@ export default class Lex {
 
     if(token.match(/(^|[ \t])([-+]?(\d+|\.\d+|\d+\.\d*))($|[^+-.])/)) {
       if(isNaN(+token)) {
-        this._last_error = LexError.BadNumber(input.pos - token.length, token);
+        this._lastError = LexError.BadNumber(input.pos - token.length, token);
         return null;
       }
       return tokenFactory("const", {
         token: token,
         pos: input.pos - token.length,
-        data_type: DATA_TYPE.NUMBER
+        dataType: DATA_TYPE.NUMBER
       });
     }
 
     if(! token.match(/^_?([_a-zA-Z])+$/)) {
-      this._last_error = LexError.BadIdentifer(input.pos - token.length, token);
+      this._lastError = LexError.BadIdentifer(input.pos - token.length, token);
       return null;
     }
 
@@ -310,25 +310,25 @@ export default class Lex {
   }
 
   getToken() {
-    if(this._back_token !== null) {
-      const t = this._back_token.clone();
-      this._back_token = null;
+    if(this._backToken !== null) {
+      const t = this._backToken.clone();
+      this._backToken = null;
       return t;
     }
-    this._prev_token = this._readNextToken(this._input);
-    return this._prev_token;
+    this._prevToken = this._readNextToken(this._input);
+    return this._prevToken;
   }
 
   putback(token) {
     if(token instanceof Token === false) {
-      this._last_error = LexError.UnableToPutbackToken(this._input.pos, token);
+      this._lastError = LexError.UnableToPutbackToken(this._input.pos, token);
       return false;
     }
-    this._back_token = token.clone();
+    this._backToken = token.clone();
     return true;
   }
 
   getLastError() {
-    return this._last_error;
+    return this._lastError;
   }
 }
