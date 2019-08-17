@@ -4,33 +4,27 @@ const exprParser = new expr4js();
 
 describe("Operator Equal", function() {
 
-  it("1==1", function() {
+  test("1==1", function() {
     const expr = exprParser.parse('1==1');
 
-    if(expr) {
-      const result = expr.execute();
+    const result = expr.execute();
 
-      expect(result).toBe(true);
-      // assert.equal(result, true);
-    }
+    expect(result).toBe(true);
   });
 
-  it("a==b", function() {
+  test("a==b", function() {
     const expr = exprParser.parse('a==b');
     const scope = {
       a: 100,
       b: 100
     };
 
-    if(expr) {
-      const result = expr.execute(scope);
+    const result = expr.execute(scope);
 
-      expect(result).toBe(true);
-      // assert.equal(result, true);
-    }
+    expect(result).toBe(true);
   });
 
-  it("100==getNumber()", function() {
+  test("100==getNumber()", function() {
     const expr = exprParser.parse('100==getNumber()');
     const scope = {
       getNumber: function() {
@@ -38,15 +32,12 @@ describe("Operator Equal", function() {
       }
     };
 
-    if(expr) {
-      const result = expr.execute(scope);
+    const result = expr.execute(scope);
 
-      expect(result).toBe(true);
-      // assert.equal(result, true);
-    }
+    expect(result).toBe(true);
   });
 
-  it("55 == fruits.banana", function() {
+  test("55 == fruits.banana", function() {
     const expr = exprParser.parse('55 == fruits.banana');
     const scope = {
       fruits: {
@@ -55,15 +46,12 @@ describe("Operator Equal", function() {
       }
     };
 
-    if(expr) {
-      const result = expr.execute(scope);
+    const result = expr.execute(scope);
 
-      expect(result).toBe(true);
-      // assert.equal(result, true);
-    }
+    expect(result).toBe(true);
   });
 
-  it("55 == fruits.getBanana()", function() {
+  test("55 == fruits.getBanana()", function() {
     const expr = exprParser.parse('55 == fruits.getBanana()');
     const scope = {
       fruits: {
@@ -73,50 +61,37 @@ describe("Operator Equal", function() {
       }
     };
 
-    if(expr) {
-      const result = expr.execute(scope);
+    const result = expr.execute(scope);
 
-      expect(result).toBe(true);
-      // assert.equal(result, true);
-    }
+    expect(result).toBe(true);
   });
 
-  it("'hello' == 'hello'", function() {
+  test("'hello' == 'hello'", function() {
     const expr = exprParser.parse("'hello' == 'hello'");
 
-    if(expr) {
-      const result = expr.execute();
+    const result = expr.execute();
 
-      expect(result).toBe(true);
-      // assert.equal(result, true);
-    }
+    expect(result).toBe(true);
   });
 
-  it("\"hello\" == \"hello\"", function() {
-    const expr = exprParser.parse("\"hello\" == \"hello\"");
+  test('"hello" == "hello"', function() {
+    const expr = exprParser.parse('"hello" == "hello"');
 
-    if(expr) {
-      const result = expr.execute();
+    const result = expr.execute();
 
-      expect(result).toBe(true);
-      // assert.equal(result, true);
-    }
+    expect(result).toBe(true);
   });
 
-  it("'0'==a", function() {
+  test("'0'==a", function() {
     const expr = exprParser.parse("0==a");
 
     const scope = {
       a: 0
     };
 
-    if(expr) {
-      const result = expr.execute(scope);
+    const result = expr.execute(scope);
 
-      expect(result).toBe(true);
-      // assert.equal(result, true);
-    }
-
+    expect(result).toBe(true);
   });
 
 });
