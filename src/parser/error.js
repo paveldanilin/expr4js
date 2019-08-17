@@ -1,4 +1,7 @@
-const PARSER_ERROR = {
+/**
+ * @type {Readonly<{UNEXPECTED_TOKEN_SEQ: {MSG: string, CODE: number}, UNEXPECTED_TOKEN: {MSG: string, CODE: number}, UNABLE_PARSE_EXPR: {MSG: string, CODE: number}}>}
+ */
+const PARSER_ERROR = Object.freeze({
   UNEXPECTED_TOKEN: {
     MSG: 'Unexpected token',
     CODE: 2000
@@ -11,7 +14,7 @@ const PARSER_ERROR = {
     MSG: 'Unable to parse expression',
     CODE: 2002
   }
-};
+});
 
 export default class ParserError {
   constructor(code, msg, token) {

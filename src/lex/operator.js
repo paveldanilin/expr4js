@@ -1,4 +1,7 @@
-const OPERATOR = {
+/**
+ * @type {Readonly<{DIF: number, COMMA: number, OR: number, MOD: number, DEC: number, QUOTE_SINGLE: number, MUL: number, IN: number, LT: number, DOT: number, OPEN_PAR: number, SUM: number, EQ: number, GT: number, DIV: number, NOT: number, CLOSE_PAR: number, GET: number, AND: number, LET: number, QUOTE_DOUBLE: number, NEQ: number, WS: number, INC: number}>}
+ */
+const OPERATOR = Object.freeze({
     GT:         100, // >
     LT:         101, // <
     GET:        102, // >=
@@ -23,6 +26,6 @@ const OPERATOR = {
     QUOTE_DOUBLE: 121, // "
     INC:         122, // ++
     DEC:         123 // --
-};
+});
 
 export default OPERATOR;

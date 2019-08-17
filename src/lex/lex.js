@@ -175,7 +175,7 @@ export default class Lex {
     return {
       code:  opCode,
       token: bufToken,
-      precedence: this._precedence[bufToken] !== undefined ? this._precedence[bufToken] : null
+      precedence: this._precedence[bufToken] || null
     };
   }
 
