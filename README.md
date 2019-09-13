@@ -6,7 +6,7 @@
 * Dev: ```npm run dev```
 * Prod: ```npm run build```
 
-* Play in the sandbox: ```sandbox-start```
+* Play in the sandbox: ```sandbox```
 
 ## Allowed operators
   - Relational and comparison operators: >, <, >=, <=, ==, !=
