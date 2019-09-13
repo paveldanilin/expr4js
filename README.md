@@ -6,7 +6,8 @@
 * Dev: ```npm run dev```
 * Prod: ```npm run build```
 
-* Play in the sandbox: ```sandbox```
+* Play in the local sandbox: ```sandbox```
+* [Sandbox](https://paveldanilin.github.io/expr4js/)
 
 ## Allowed operators
   - Relational and comparison operators: >, <, >=, <=, ==, !=
