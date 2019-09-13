@@ -1,5 +1,0 @@
-.layout__container_border {
-    border-color: var(--color-bg-border, black);
-    border-style: solid;
-    border-width: 1px;
-}

@@ -1,7 +1,0 @@
-.list__item_focus {
-}
-
-.list__item_focus:before {
-    content: '*';
-    color: var(--color-bg-accent);
-}

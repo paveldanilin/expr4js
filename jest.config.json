@@ -1,7 +1,0 @@
-{
-    "bail": true,
-    "verbose": false,
-    "notify": true,
-    "testEnvironment": "node",
-    "testMatch": ["<rootDir>/__tests__/**/*test.js"]
-}
