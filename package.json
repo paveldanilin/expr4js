@@ -5,20 +5,15 @@
   "main": "dist/expr4.js",
   "scripts": {
     "test": "npm run-script lint && npm run-script dev && jest --config jest.config.json --forceExit",
-
     "build": "webpack --config webpack.prod.js",
-
     "dev": "webpack --config webpack.dev.js",
-
     "lint": "eslint src",
-
-    "sandbox-start": "npm run-script build && npm run-script sandbox-build && webpack-dev-server --config webpack.sandbox.js --progress",
-
+    "sandbox": "npm run-script build && npm run-script sandbox-build && webpack-dev-server --config webpack.sandbox.js --progress",
     "sandbox-build": "webpack --config webpack.sandbox.js"
   },
   "author": "Pavel.Danilin",
   "devDependencies": {
-    "eslint": "6.1.0",
+    "eslint": "6.3.0",
     "webpack-merge": "4.2.1",
     "jest": "^24.8.0",
     "babel-jest": "^24.8.0",
